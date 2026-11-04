@@ -1,0 +1,24 @@
+[project]
+name = "accept-or-abstain"
+version = "0.1.0"
+description = "A held-out-calibrated accept-or-abstain protocol for molecular property and reaction-yield models"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Oleksandr Gurbych" }]
+requires-python = ">=3.11,<3.13"
+dependencies = [
+  "numpy>=1.26",
+  "pandas>=2.2",
+  "openpyxl>=3.1",
+  "scipy>=1.13",
+  "scikit-learn>=1.5",
+  "rdkit>=2024.3",
+  "matplotlib>=3.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aoa"]
