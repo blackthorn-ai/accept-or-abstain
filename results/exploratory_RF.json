@@ -1,0 +1,87 @@
+{
+ "model": "RF",
+ "per_seed_attainment": {
+  "C_r": {
+   "seed_cells_accepting": 67,
+   "met_target": 15
+  },
+  "C_h": {
+   "seed_cells_accepting": 45,
+   "met_target": 31
+  }
+ },
+ "conformal": [
+  {
+   "test": "LogP cluster",
+   "cov_C_r": 0.846,
+   "cov_C_h": 0.901,
+   "width_C_r": 2.316,
+   "width_C_h": 2.735,
+   "width_ratio": 1.181
+  },
+  {
+   "test": "LogP prospective (E1)",
+   "cov_C_r": 0.886,
+   "cov_C_h": 0.94,
+   "width_C_r": 1.991,
+   "width_C_h": 2.356,
+   "width_ratio": 1.183
+  },
+  {
+   "test": "LogP fluorinated (E2)",
+   "cov_C_r": 0.899,
+   "cov_C_h": 0.955,
+   "width_C_r": 2.042,
+   "width_C_h": 2.432,
+   "width_ratio": 1.191
+  },
+  {
+   "test": "BH Test1",
+   "cov_C_r": 0.828,
+   "cov_C_h": 0.941,
+   "width_C_r": 25.51,
+   "width_C_h": 41.163,
+   "width_ratio": 1.614
+  },
+  {
+   "test": "BH Test2",
+   "cov_C_r": 0.82,
+   "cov_C_h": 0.954,
+   "width_C_r": 23.296,
+   "width_C_h": 40.625,
+   "width_ratio": 1.744
+  },
+  {
+   "test": "BH Test3",
+   "cov_C_r": 0.76,
+   "cov_C_h": 0.919,
+   "width_C_r": 28.23,
+   "width_C_h": 50.566,
+   "width_ratio": 1.791
+  },
+  {
+   "test": "BH Test4",
+   "cov_C_r": 0.642,
+   "cov_C_h": 0.798,
+   "width_C_r": 22.8,
+   "width_C_h": 38.694,
+   "width_ratio": 1.697
+  },
+  {
+   "test": "SM ligand",
+   "cov_C_r": 0.764,
+   "cov_C_h": 0.921,
+   "width_C_r": 39.193,
+   "width_C_h": 86.009,
+   "width_ratio": 2.194
+  },
+  {
+   "test": "logp/R",
+   "cov_C_r": 0.903,
+   "cov_C_h": 0.943,
+   "width_C_r": 2.004,
+   "width_C_h": 2.371,
+   "width_ratio": 1.183
+  }
+ ]
+}

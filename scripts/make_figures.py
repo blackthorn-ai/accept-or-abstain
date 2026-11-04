@@ -155,7 +155,7 @@ def fig_calibration():
             ax.scatter(xs, ys, s=[18 + 80 * c for c in cv], color=C[cal], alpha=0.85, edgecolor="white", lw=0.5,
                        label="Calibrated on random fold C_r" if cal == "C_r" else "Calibrated on held-out fold C_h", zorder=3)
         ax.axhline(t, color="k", lw=0.8); ax.axhspan(t - 0.05, t, color="#e5e5e5", zorder=0)
-        ax.set_xticks(range(len(HELD_OUT)), [LABEL[(tk, te)].replace("LogP ", "").replace(" (", "\n(") for _, tk, te in HELD_OUT],
+        ax.set_xticks(range(len(HELD_OUT)), [LABEL[(tk, te)].replace(" (", "\n(").replace("LogP ", "LogP\n") for _, tk, te in HELD_OUT],
                       rotation=60, ha="right", fontsize=6.8)
         ax.set_title(f"Target precision t = {t}"); ax.set_ylim(0.35, 1.02)
     axes[0].set_ylabel("Achieved precision on the held-out test")
@@ -186,9 +186,9 @@ def fig_conformal():
     ax.bar(x - 0.18, [r[1] for r in rows], 0.36, color="#9aa6b2", label="All queries")
     ax.bar(x + 0.18, [r[2] for r in rows], 0.36, color=C["fused"], label="Accepted by Gate B (C_h, t = 0.8)")
     ax.axhline(0.9, color="k", lw=0.8); ax.axhline(0.85, color="k", lw=0.6, ls=":")
-    ax.set_xticks(x, [r[0].replace("LogP ", "LogP\n").replace("BH ", "BH\n").replace("SM ", "SM\n") for r in rows], fontsize=6.6)
+    ax.set_xticks(x, [r[0].replace(" (", "\n(").replace(" random R", "\nrandom R").replace("LogP ", "LogP\n").replace("BH ", "BH\n").replace("SM ", "SM\n") for r in rows], fontsize=6.2)
     ax.set_ylabel("Interval coverage"); ax.set_ylim(0.3, 1.0)
-    ax.legend(fontsize=7, loc="lower left", ncol=2)
+    ax.legend(fontsize=7, loc="lower center", ncol=2, bbox_to_anchor=(0.5, 1.0))
     fig.tight_layout()
     fig.savefig(FIG / "fig5_conformal.pdf"); fig.savefig(FIG / "fig5_conformal.png"); plt.close(fig)
     return rows

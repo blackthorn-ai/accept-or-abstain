@@ -153,3 +153,32 @@ left open are fixed as follows.
   1,640 reactions in F for each TestN, roughly half of the published training rows.
   Ungated accuracy is therefore not directly comparable with published Test1–Test4
   results.
+
+**1.2, 4 November 2026, after scoring: documentation only.** Nothing in sections 1–9
+or in the pass criteria changes. Two independent reviews of the first manuscript
+draft found the points below.
+- *Wording versus implementation.* Section 5 says the logP held-out test and
+  calibration fold receive "15% of clusters". The code (`splits.group_holdout`)
+  assigns whole clusters in random order until 15% of the *compounds* is reached.
+  The manuscript describes the code.
+- *Suzuki–Miyaura structures.* Section 4 says the component structures "follow the
+  cited redistribution". They come from a table written for this repository
+  (`src/aoa/data.py`), which omits spectator fragments: the internal standard, HCl
+  and water of hydration.
+- *Count in note 1.1.* Note 1.1 announces three points and lists four.
+- *Bootstrap correction.* The first version of `boot_h1` resampled each seed
+  independently. For test sets that are identical in every seed (E1, E2, BH
+  Test1–Test4), that makes the intervals too narrow. The corrected code uses the same
+  resample for every seed in those sets. No H1 verdict changes; the E2 interval
+  widens from [−0.064, +0.029] to [−0.098, +0.067].
+- *Timing.* The whole study ran in one working session on 4 November 2026. The
+  commit history shows the order: the empty repository, then protocol 1.0, then 1.1,
+  then the code, then the results. Base-model predictions were generated with the
+  committed code shortly before that code was committed; none were scored before
+  `feadf9a`.
+- *Exploratory analyses.* The following are not in the protocol and are reported as
+  exploratory (`scripts/exploratory.py`):
+  - per-seed target attainment;
+  - pooled precision in the operating-limits cards;
+  - conformal intervals calibrated on C_h;
+  - the E2 signal diagnostics.

@@ -68,23 +68,25 @@ def t2(model="RF"):
 
 
 def t3(model="RF", target=0.8):
+    """Operating-limits card: pooled precision over all accepted queries of all seeds, Wilson 95% CI."""
     out = ["\\begin{tabular}{@{}lccccc@{}}", "\\toprule",
            " & \\multicolumn{2}{c}{Calibrated on $C_r$} & \\multicolumn{3}{c}{Calibrated on $C_h$} \\\\",
            "\\cmidrule(lr){2-3}\\cmidrule(lr){4-6}",
-           "Held-out test & Coverage & Precision & Coverage & Precision & Seeds accepting \\\\",
+           "Held-out test & Coverage & Precision [95\\% CI] & Coverage & Precision [95\\% CI] & Seeds accepting \\\\",
            "\\midrule"]
     for fam, task, test in HELD_OUT:
         cells = []
         for cal in ("C_r", "C_h"):
             d = L[(L.task == task) & (L.model == model) & (L.cal == cal) & (L.test == test) &
                   (L.gate == "LTT_fused") & (L.target == target)]
+            n = int(d.n_acc.sum())
+            k = int(round((d.precision.fillna(0) * d.n_acc).sum()))
             cov = d.coverage.mean()
-            p = d.precision.dropna()
-            if p.empty:
+            if n == 0:
                 cells.append((f"{cov:.2f}", "abstained", "0/5"))
             else:
-                sd = f" $\\pm$ {p.std():.2f}" if len(p) > 1 else ""
-                cells.append((f"{cov:.2f}", f"{p.mean():.2f}{sd}", f"{int((d.n_acc > 0).sum())}/{len(d)}"))
+                lo, hi = metrics.wilson(k, n)
+                cells.append((f"{cov:.2f}", f"{k/n:.2f} [{lo:.2f}, {hi:.2f}]", f"{int((d.n_acc > 0).sum())}/{len(d)}"))
         (cr_cov, cr_p, _), (ch_cov, ch_p, ch_s) = cells
         out.append(f"{LABEL[(task, test)]} & {cr_cov} & {cr_p} & {ch_cov} & {ch_p} & {ch_s} \\\\")
     out += ["\\bottomrule", "\\end{tabular}"]
@@ -98,8 +100,10 @@ def t4():
     names = {"H1": "H1: gate lowers error at 30\\% coverage", "H2": "H2: calibration split matters",
              "H3": "H3: fusion beats best single signal", "H4": "H4: gating restores conformal coverage"}
     for h in ["H1", "H2", "H3", "H4"]:
-        out.append(f"{names[h]} & {'holds' if v['RF'][h] else 'does not hold'} & "
-                   f"{'holds' if v.get('MLP', {}).get(h) else 'does not hold'} \\\\")
+        mlp = "holds" if v.get("MLP", {}).get(h) else "does not hold"
+        if h == "H2" and mlp == "holds":
+            mlp = "holds (vacuously)"
+        out.append(f"{names[h]} & {'holds' if v['RF'][h] else 'does not hold'} & {mlp} \\\\")
     out += ["\\bottomrule", "\\end{tabular}"]
     (TAB / "t4_verdicts.tex").write_text("\n".join(out))
 

@@ -90,7 +90,7 @@ def analyse_file(f: Path, keep_arrays: dict):
                                  "n_acc": n_acc,
                                  "conf_cov_acc": covered[acc].mean() if n_acc else np.nan})
                 if k == "fused" and cal_name == "C_h":
-                    keep_arrays[(task, model, seed, tname)] = (sc, T.correct.values)
+                    keep_arrays[(task, model, seed, tname)] = (sc, T.correct.values, T.idx.values)
                 FULL[(task, model, seed, cal_name, tname, k)] = {
                     "score": sc, "correct": T.correct.values, "y": T.y.values, "yhat": T.yhat.values,
                     "acc08": sc >= thr[(k, 0.8)], "acc09": sc >= thr[(k, 0.9)],
@@ -113,14 +113,21 @@ def boot_h1(arrays: dict, task: str, model: str, test: str, rng) -> tuple[float,
     seeds = sorted(s for (tk, m, s, te) in arrays if tk == task and m == model and te == test)
     def diff(sc, c):
         return metrics.error_at_coverage(sc, c, 0.3) - (1 - c.mean())
-    point = np.mean([diff(*arrays[(task, model, s, test)]) for s in seeds])
+    arr = [arrays[(task, model, s, test)] for s in seeds]
+    point = np.mean([diff(sc, c) for sc, c, _ in arr])
+    # A test set that is identical in every seed (E1, E2, BH TestN) is resampled jointly:
+    # the same query indices in every seed. Otherwise each seed is resampled on its own.
+    same = all(np.array_equal(arr[0][2], ix) for _, _, ix in arr)
     bs = []
     for _ in range(N_BOOT):
-        vals = []
-        for s in seeds:
-            sc, c = arrays[(task, model, s, test)]
-            i = rng.integers(0, len(c), len(c))
-            vals.append(diff(sc[i], c[i]))
+        if same:
+            i = rng.integers(0, len(arr[0][1]), len(arr[0][1]))
+            vals = [diff(sc[i], c[i]) for sc, c, _ in arr]
+        else:
+            vals = []
+            for sc, c, _ in arr:
+                i = rng.integers(0, len(c), len(c))
+                vals.append(diff(sc[i], c[i]))
         bs.append(np.mean(vals))
     lo, hi = np.percentile(bs, [2.5, 97.5])
     return float(point), float(lo), float(hi)

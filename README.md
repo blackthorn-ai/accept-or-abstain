@@ -15,14 +15,17 @@ history shows the order.
 ## Result in one paragraph
 
 On seven of eight held-out tests, ranking queries by the gate's score lowered the
-error rate at 30% coverage by 0.16–0.35. Calibrating the threshold on a held-out fold
-instead of a random one mattered most for reaction yields. Random-fold gates accepted
-94–99% of Buchwald–Hartwig reactions with unseen additives at a precision of
-0.59–0.75 against a target of 0.8. Held-out-fold gates reached 0.87–0.90 on three of
-the four tests, at 29–62% coverage. For the random forest, fusing similarity with
-spread added nothing to spread alone. Conformal coverage fell under shift, and gating
-did not restore it for reactions. **All four pre-specified hypotheses failed their
-criteria.** See [`results/hypotheses.md`](results/hypotheses.md).
+error rate at 30% coverage by 0.16–0.35. At a target precision of 0.8, calibrating
+the threshold on a held-out fold instead of a random one mattered most for reaction
+yields. Random-fold gates accepted 94–99% of Buchwald–Hartwig reactions with unseen
+additives, at a precision of 0.59–0.75. Held-out-fold gates reached a pooled
+precision of 0.85–0.87 on three of the four tests, at 29–62% coverage. At a target of
+0.9 the difference was smaller. For the random forest, fusing similarity with spread
+added nothing to spread alone, and conformal intervals calibrated on a random fold
+lost coverage under shift. **All four pre-specified hypotheses failed their
+criteria.** In an exploratory analysis, intervals calibrated on the held-out fold
+recovered coverage, at the cost of width. See [`results/hypotheses.md`](results/hypotheses.md),
+`results/exploratory_RF.json` and protocol note 1.2 in [`PROTOCOL.md`](PROTOCOL.md).
 
 ## Reproduce
 
@@ -33,7 +36,8 @@ uv venv --python 3.12 && uv pip install -e .
 .venv/bin/python scripts/analyse.py           # gates, metrics, hypotheses
 .venv/bin/python scripts/make_figures.py
 .venv/bin/python scripts/make_tables.py
-cd paper && pdflatex main && bibtex main && pdflatex main && pdflatex main
+.venv/bin/python scripts/exploratory.py      # exploratory analyses (not pre-specified)
+cd paper && pdflatex main && bibtex main && pdflatex main && pdflatex main && xelatex si
 ```
 
 The full run takes about 40 minutes on an 18-core laptop, most of it the MLP ensembles.

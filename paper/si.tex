@@ -23,7 +23,7 @@ Oleksandr Gurbych\\
 {\small Blackthorn AI Ltd., London, United Kingdom}
 \end{center}
 
-\noindent Contents: Section S1, results of the MLP ensemble (M2), Tables S1--S3. Section S2, operating-limits card of the random forest (M1) at $t = 0.9$, Table S4. Section S3, the analysis protocol as committed before scoring. Section S4, software environment. Table numbers in the main text refer to the main manuscript.
+\noindent Contents: Section S1, results of the MLP ensemble (M2), Tables S1--S3. Section S2, operating-limits card of the random forest (M1) at $t = 0.9$ (pooled precision with Wilson 95\% intervals), Table S4. Section S3, the analysis protocol as committed before scoring. Section S4, software environment. Table numbers in the main text refer to the main manuscript.
 
 \section{Results of the MLP ensemble (M2)}
 
@@ -43,7 +43,7 @@ Oleksandr Gurbych\\
 
 \begin{table}[h]
 \centering
-\caption{Operating-limits card for Gate~B with M2 at $t = 0.8$. Definitions as in Table~4 of the main text. The $C_h$-calibrated gate abstained on every query in every seed.}
+\caption{Operating-limits card for Gate~B with M2 at $t = 0.8$. Pooled precision with Wilson 95\% intervals; other definitions as in Table~4 of the main text. The $C_h$-calibrated gate abstained on every query in every seed.}
 \small
 \resizebox{\linewidth}{!}{\input{tables/t3_card_MLP_8.tex}}
 \end{table}
@@ -60,7 +60,7 @@ Oleksandr Gurbych\\
 
 \section{Analysis protocol as committed}
 
-The text below reproduces \texttt{PROTOCOL.md} from the code repository. Version 1.0 was committed at \texttt{f187a12} and the clarifications of version 1.1 at \texttt{0269f67}, both before any gate or test metric was computed.
+The text below reproduces \texttt{PROTOCOL.md} from the code repository. Version 1.0 was committed at \texttt{f187a12} and the clarifications of version 1.1 at \texttt{0269f67}, both before any gate or test metric was computed. Note 1.2, at the end, was added after scoring; it documents differences between wording and implementation and changes no criterion.
 
 \begingroup\small
 \input{tables/protocol_si.tex}
