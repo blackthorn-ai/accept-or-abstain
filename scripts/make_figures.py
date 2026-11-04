@@ -48,33 +48,52 @@ def gsel(**kw):
 
 # ------------------------------------------------------------------ F1 protocol
 def fig_protocol():
-    fig, ax = plt.subplots(figsize=(7.1, 2.0))
-    ax.set_xlim(0, 100); ax.set_ylim(0, 30); ax.axis("off")
     steps = [
-        ("P1", "Context of use\n& correctness\n(|error| ≤ τ)"),
-        ("P2", "Split by\nchemistry\n(F · C_h · H)"),
-        ("P3", "Fit model on F;\nsignals s1, s5, u"),
-        ("P4", "Calibrate gate on\nheld-out fold C_h\n(LTT, target t)"),
-        ("P5", "Stress-test on\nfurther held-out\nsets"),
-        ("P6", "Publish the\noperating-limits\ncard"),
+        ("P1", "Context of use;\ncorrect if\n|error| \u2264 \u03c4"),
+        ("P2", "Split by\nchemistry:\n$F$, $C_h$, $H$"),
+        ("P3", "Fit model on $F$;\nsignals\n$s_1$, $s_5$, $u$"),
+        ("P4", "Calibrate gate\non $C_h$\n(LTT, target $t$)"),
+        ("P5", "Stress-test on\nfurther\nheld-out sets"),
+        ("P6", "Publish the\noperating-\nlimits card"),
     ]
-    w, gap, y0, h = 14.2, 2.6, 6, 18
-    for i, (code, txt) in enumerate(steps):
-        x = 1 + i * (w + gap)
-        box = FancyBboxPatch((x, y0), w, h, boxstyle="round,pad=0.3,rounding_size=1.2",
-                             fc="#eef5f0" if code == "P4" else "#f3f6fa",
-                             ec="#009E73" if code == "P4" else "#4a5a70", lw=1.0)
-        ax.add_patch(box)
-        ax.text(x + w / 2, y0 + h - 3.2, code, ha="center", va="center", weight="bold", fontsize=9)
-        ax.text(x + w / 2, y0 + h / 2 - 2.2, txt, ha="center", va="center", fontsize=7.4, linespacing=1.15)
-        if i < len(steps) - 1:
-            ax.add_patch(FancyArrowPatch((x + w + 0.4, y0 + h / 2), (x + w + gap - 0.4, y0 + h / 2),
-                                         arrowstyle="-|>", mutation_scale=9, lw=1.0, color="#4a5a70"))
-    ax.text(50, 2.0, "Each query is accepted, with a prediction, or declined; "
-            "the gate's precision target holds for queries exchangeable with C_h.",
-            ha="center", fontsize=7.2, style="italic", color="#333")
+    w, gap, y0, h, x0 = 14.6, 1.9, 7, 19, 1.4
+    for fs in (7.0, 6.7, 6.4, 6.1, 5.8):
+        fig, ax = plt.subplots(figsize=(7.1, 2.1))
+        fig.subplots_adjust(left=0.005, right=0.995, top=0.99, bottom=0.01)
+        ax.set_xlim(0, 100); ax.set_ylim(0, 30); ax.axis("off")
+        pairs = []
+        for i, (code, txt) in enumerate(steps):
+            x = x0 + i * (w + gap)
+            box = FancyBboxPatch((x, y0), w, h, boxstyle="round,pad=0.3,rounding_size=1.2",
+                                 fc="#eef5f0" if code == "P4" else "#f3f6fa",
+                                 ec="#009E73" if code == "P4" else "#4a5a70", lw=1.0)
+            ax.add_patch(box)
+            ax.text(x + w / 2, y0 + h - 3.4, code, ha="center", va="center", weight="bold", fontsize=8.5)
+            body = ax.text(x + w / 2, y0 + h / 2 - 2.6, txt, ha="center", va="center",
+                           fontsize=fs, linespacing=1.2)
+            pairs.append((box, body))
+            if i < len(steps) - 1:
+                ax.add_patch(FancyArrowPatch((x + w + 0.35, y0 + h / 2), (x + w + gap - 0.35, y0 + h / 2),
+                                             arrowstyle="-|>", mutation_scale=8, lw=1.0, color="#4a5a70"))
+        foot = ax.text(50, 2.2, "Each query is accepted, with a prediction, or declined; the precision "
+                       "target holds for queries exchangeable with $C_h$.",
+                       ha="center", fontsize=7.0, style="italic", color="#333")
+        fig.canvas.draw()
+        r = fig.canvas.get_renderer()
+        margin = 0.06 * fig.dpi  # about 0.06 inch of clearance inside each box
+        ax_bb = ax.get_window_extent(r)
+        fits = all(
+            bb.x0 >= b.x0 + margin and bb.x1 <= b.x1 - margin and bb.y0 >= b.y0 + margin
+            and b.x0 >= ax_bb.x0 and b.x1 <= ax_bb.x1
+            for b, bb in ((bx.get_window_extent(r), tx.get_window_extent(r)) for bx, tx in pairs)
+        ) and foot.get_window_extent(r).x1 <= ax_bb.x1 and foot.get_window_extent(r).x0 >= ax_bb.x0
+        if fits:
+            break
+        plt.close(fig)
+    assert fits, "Figure 1 labels do not fit their boxes"
     fig.savefig(FIG / "fig1_protocol.pdf"); fig.savefig(FIG / "fig1_protocol.png")
     plt.close(fig)
+    print(f"fig1: body font {fs} pt fits all boxes")
 
 
 # ------------------------------------------------------------------ F2 the gap
