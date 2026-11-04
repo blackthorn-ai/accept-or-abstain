@@ -15,3 +15,7 @@ paper/bib.log
 paper/missfont.log
 *.fls
 *.fdb_latexmk
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.toc

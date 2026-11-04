@@ -18,7 +18,7 @@
 \author{Oleksandr Gurbych\\[0.3em]
 \small Blackthorn AI Ltd., London, United Kingdom\\
 \small ORCID 0000-0002-6821-3390 \quad Correspondence: alex@blackthorn.ai}
-\date{\small Preprint, \today. Not peer reviewed.}
+\date{}
 
 \begin{document}
 \maketitle
@@ -235,7 +235,7 @@ Figure~\ref{fig:fl} shows the fluorinated case in detail. The gate declined almo
 \input{tables/t4_verdicts.tex}
 \end{table}
 
-The MLP ensemble (M2) was somewhat more accurate than the random forest on random and held-out logP clusters (RMSE 0.62 and 0.84, against 0.68 and 0.90) and on the random BH tests, and similar on held-out additives (Table~S1). It generalised worse to the fluorinated hold-out: its error rate on E2 was 0.48, against 0.36 for M1, and 0.50 on the sp\textsuperscript{3} C--F compounds alone. Its signals also behaved differently. On the logP tests, the similarity signal ranked errors better than the spread of the MLP ensemble, and the fused score improved on the better single signal by 7.4\%, 2.8\% and 5.7\% (Table~S2). That is more than for M1, but short of the 10\% that H3 requires. On reactions, the fused score was no better than spread, and on the SM test it was 7\% worse. H3 therefore fails for M2 too.
+The MLP ensemble (M2) was somewhat more accurate than the random forest on random and held-out logP clusters (RMSE 0.62 and 0.84, against 0.68 and 0.90) and on the random BH tests, and similar on held-out additives (Table~S1, Supporting Information). It generalised worse to the fluorinated hold-out: its error rate on E2 was 0.48, against 0.36 for M1, and 0.50 on the sp\textsuperscript{3} C--F compounds alone. Its signals also behaved differently. On the logP tests, the similarity signal ranked errors better than the spread of the MLP ensemble, and the fused score improved on the better single signal by 7.4\%, 2.8\% and 5.7\% (Table~S2). That is more than for M1, but short of the 10\% that H3 requires. On reactions, the fused score was no better than spread, and on the SM test it was 7\% worse. H3 therefore fails for M2 too.
 
 H1 held for M2 on all eight tests, although the reductions on reactions were small (0.03 to 0.09). The $C_h$-calibrated gate of M2, however, abstained on every query of every held-out test (Table~S3): on the held-out calibration folds, no threshold that accepted at least 50 points passed the binomial test. H2 therefore holds for M2 only vacuously, under the rule, fixed before scoring, that a gate accepting nothing does not miss its target, and H4 cannot be checked. The $C_r$-calibrated gate of M2 missed its target on every BH test by a wider margin than M1, with a precision of 0.52--0.70 at $t = 0.8$. Table~\ref{tab:verdicts} summarises the outcomes.
 
@@ -248,14 +248,17 @@ The study is retrospective: every split was drawn from existing data, and no pre
 
 A reliability gate is easy to build from signals most models already have, and on seven of eight held-out tests ranking queries by such a gate lowered the error rate substantially. The way the gate's threshold is calibrated mattered more than the choice of signal. A threshold calibrated on a random fold, as is usual, accepted nearly all reactions with an unseen additive at a precision well below its target. A threshold calibrated on a fold held out in the same way as the intended use came much closer to the target, at the cost of coverage that the card makes explicit. On the other hand, for the random forest, combining similarity with ensemble spread added nothing to spread alone. Conformal intervals lost coverage under shift, and gating did not restore it for reactions. On fluorinated compounds the gate was cautious where the model was in fact accurate. All four pre-specified hypotheses failed their criteria for the primary model, and we report them as such. A neural ensemble ranked errors on every held-out test, but its held-out-calibrated gate could certify none of them. The practical recommendation that survives is narrower than the one we set out to test: calibrate abstention thresholds on data held out by chemistry, and publish the coverage and precision achieved on held-out tests, not on random ones.
 
+\section*{Supporting Information}
+Tables S1--S3 (results of the MLP ensemble M2), Table S4 (operating-limits card of M1 at $t = 0.9$) and the analysis protocol as committed before scoring (PDF).
+
 \section*{Data and code availability}
-All data are public (SangsterLogP, CC BY 4.0;\cite{sangsterzenodo} the Buchwald--Hartwig, Suzuki--Miyaura and fluorinated-amide data under the MIT licence of their repositories). The code, the analysis protocol with its commit history, the split definitions, all per-query predictions and the scripts that generate every figure and table are available at \url{https://github.com/blackthorn-ai/accept-or-abstain} under the MIT licence. \textcolor{red}{[Repository to be made public, and an archived release with a Zenodo DOI added, before posting.]}
+All data are public (SangsterLogP, CC BY 4.0;\cite{sangsterzenodo} the Buchwald--Hartwig, Suzuki--Miyaura and fluorinated-amide data under the MIT licence of their repositories). The code, the analysis protocol with its commit history (version 1.0 at commit \texttt{f187a12} and the clarifications of version 1.1 at \texttt{0269f67}, both before scoring), the split definitions, all per-query predictions and the scripts that regenerate every figure and table are available at \url{https://github.com/blackthorn-ai/accept-or-abstain} under the MIT licence.
 
 \section*{Author contributions}
 O.G.: conceptualization, methodology, software, formal analysis, visualization, writing (original draft, review and editing).
 
 \section*{Use of AI tools}
-\textcolor{red}{[Confirm before posting.]} An AI assistant (Claude, Anthropic) was used under the author's direction to write analysis code, generate figures and tables, and draft the text. The author designed the study, fixed the analysis protocol, reviewed the code, results and manuscript, and takes full responsibility for the content.
+An AI assistant (Claude, Anthropic) was used under the author's direction to write analysis code, generate figures and tables, and draft the text. The author designed the study, fixed the analysis protocol, reviewed the code, results and manuscript, and takes full responsibility for the content.
 
 \section*{Competing interests}
 O.G. is the director and owner of Blackthorn AI Ltd., which provides machine-learning services to life-sciences companies, including work on model reliability. No client data, code or results were used in this work.
@@ -265,39 +268,5 @@ This work received no specific funding.
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}
-
-\clearpage
-\appendix
-\renewcommand{\thetable}{S\arabic{table}}
-\setcounter{table}{0}
-\section*{Supporting information}
-
-\begin{table}[h]
-\centering
-\caption{Ungated accuracy of M2, the MLP ensemble (mean $\pm$ s.d. over five seeds).}
-\small
-\input{tables/t2_accuracy_MLP.tex}
-\end{table}
-
-\begin{table}[h]
-\centering
-\caption{AURC of the selective error rate for M2 (mean over seeds).}
-\small
-\input{tables/t5_aurc_MLP.tex}
-\end{table}
-
-\begin{table}[h]
-\centering
-\caption{Operating-limits card for Gate~B with M2 at $t = 0.8$ (definitions as in Table~\ref{tab:card}).}
-\small
-\resizebox{\linewidth}{!}{\input{tables/t3_card_MLP_8.tex}}
-\end{table}
-
-\begin{table}[h]
-\centering
-\caption{Operating-limits card for Gate~B with M1 at $t = 0.9$ (definitions as in Table~\ref{tab:card}).}
-\small
-\resizebox{\linewidth}{!}{\input{tables/t3_card_RF_9.tex}}
-\end{table}
 
 \end{document}
