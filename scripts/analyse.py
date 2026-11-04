@@ -22,6 +22,7 @@ OUT = ROOT / "results"
 TARGETS = [0.8, 0.9]
 DELTA = 0.1
 N_BOOT = 1000
+FULL: dict = {}
 HELD_OUT = [
     ("D1", "logp", "H"), ("D1", "logp", "E1"), ("D1", "logp_noCF", "E2"),
     ("D3", "bh_Test1", "H"), ("D3", "bh_Test2", "H"), ("D3", "bh_Test3", "H"),
@@ -90,6 +91,11 @@ def analyse_file(f: Path, keep_arrays: dict):
                                  "conf_cov_acc": covered[acc].mean() if n_acc else np.nan})
                 if k == "fused" and cal_name == "C_h":
                     keep_arrays[(task, model, seed, tname)] = (sc, T.correct.values)
+                FULL[(task, model, seed, cal_name, tname, k)] = {
+                    "score": sc, "correct": T.correct.values, "y": T.y.values, "yhat": T.yhat.values,
+                    "acc08": sc >= thr[(k, 0.8)], "acc09": sc >= thr[(k, 0.9)],
+                    "covered": covered, **({"sp3_CF": T.sp3_CF.values.astype(bool)} if "sp3_CF" in T else {}),
+                }
             for t in TARGETS:
                 t1, t2 = conj[t]
                 acc = (T.s1.values >= t1) & (T.u.values <= t2)
@@ -131,6 +137,10 @@ def main():
     M = pd.DataFrame(rows)
     S = pd.DataFrame(srows)
     M.to_csv(OUT / "metrics_long.csv", index=False)
+    import pickle
+    (OUT / "cache").mkdir(exist_ok=True)
+    with open(OUT / "cache" / "arrays.pkl", "wb") as fh:
+        pickle.dump(FULL, fh)
     S.to_csv(OUT / "scores_long.csv", index=False)
 
     # seed-averaged summaries
