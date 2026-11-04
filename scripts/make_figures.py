@@ -257,3 +257,61 @@ if __name__ == "__main__":
     pd.DataFrame(conf, columns=["test", "cov_all", "cov_accepted"]).to_csv(RES / "fig5_values.csv", index=False)
     pd.DataFrame(fl, columns=["group", "err_rate", "accepted_share", "precision_accepted"]).to_csv(RES / "fig6_values.csv", index=False)
     print("figures written to", FIG)
+
+
+# ------------------------------------------------------------------ graphical abstract (ChemRxiv)
+def fig_graphical_abstract():
+    L = pd.read_csv(RES / "metrics_long.csv")
+    L = L[(L.model == MODEL) & (L.gate == "LTT_fused") & (L.target == 0.8) & (L.test == "H")]
+    tests = ["bh_Test1", "bh_Test2", "bh_Test3", "bh_Test4"]
+    pooled = {}
+    for cal in ("C_r", "C_h"):
+        for t in tests:
+            d = L[(L.task == t) & (L.cal == cal)]
+            n = d.n_acc.sum()
+            pooled[(cal, t)] = ((d.precision.fillna(0) * d.n_acc).sum() / n if n else np.nan, d.coverage.mean())
+
+    fig = plt.figure(figsize=(8, 4))
+    fig.text(0.5, 0.95, "Accept or abstain: calibrate the gate on held-out chemistry",
+             ha="center", va="center", fontsize=13, weight="bold")
+    # left: the gate
+    ax = fig.add_axes([0.01, 0.06, 0.47, 0.80]); ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.axis("off")
+    def box(x, y, w, h, txt, fc="#f3f6fa", ec="#4a5a70", fs=9.5, bold=False):
+        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.4,rounding_size=2", fc=fc, ec=ec, lw=1.2))
+        ax.text(x + w / 2, y + h / 2, txt, ha="center", va="center", fontsize=fs, weight="bold" if bold else None,
+                linespacing=1.2)
+    def arrow(x0, y0, x1, y1, col="#4a5a70"):
+        ax.add_patch(FancyArrowPatch((x0, y0), (x1, y1), arrowstyle="-|>", mutation_scale=12, lw=1.3, color=col))
+    box(2, 62, 25, 24, "Query\nmolecule or\nreaction")
+    box(35, 62, 27, 24, "Model\n+ signals\n$s_1$ (similarity)\n$u$ (spread)", fs=8.8)
+    box(70, 62, 28, 24, "Gate:\nthreshold for a\ntarget precision", fc="#eef5f0", ec="#009E73", fs=9)
+    arrow(27.5, 74, 34.5, 74); arrow(62.5, 74, 69.5, 74)
+    box(60, 30, 18, 16, "Accept:\nprediction", fc="#e8f4ec", ec="#009E73", fs=8.3)
+    box(81, 30, 17, 16, "Abstain", fc="#fbeee6", ec="#D55E00", fs=8.6)
+    arrow(80, 61.5, 70, 46.5, "#009E73"); arrow(89, 61.5, 89.5, 46.5, "#D55E00")
+    box(2, 24, 50, 30, "Threshold set by\nLearn-then-Test on a fold\nheld out by chemistry ($C_h$),\nnot at random ($C_r$)",
+        fc="#ffffff", ec="#009E73", fs=8.3)
+    arrow(52.5, 52, 69.5, 63, "#009E73")
+    # right: the result
+    ax2 = fig.add_axes([0.57, 0.17, 0.41, 0.62])
+    x = np.arange(len(tests))
+    for off, cal, col, lab in [(-0.19, "C_r", C["C_r"], "Calibrated on random fold"),
+                               (0.19, "C_h", C["C_h"], "Calibrated on held-out additives")]:
+        vals = [pooled[(cal, t)][0] for t in tests]
+        covs = [pooled[(cal, t)][1] for t in tests]
+        ax2.bar(x + off, vals, 0.36, color=col, label=lab)
+        for xi, v, c in zip(x + off, vals, covs):
+            ax2.text(xi, v + 0.012, f"{c:.0%}", ha="center", fontsize=7, color="#333")
+    ax2.axhline(0.8, color="k", lw=1); ax2.text(3.62, 0.805, "target 0.8", ha="right", va="bottom", fontsize=7.5)
+    ax2.set_ylim(0.4, 1.0); ax2.set_xticks(x, ["Test1", "Test2", "Test3", "Test4"])
+    ax2.set_ylabel("Precision of accepted predictions")
+    ax2.set_title("Buchwald–Hartwig, unseen additives\n(labels: share of reactions accepted)", fontsize=9)
+    ax2.legend(fontsize=7.5, loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=1, frameon=False)
+    for ext in ("png", "pdf"):
+        fig.savefig(FIG / f"graphical_abstract.{ext}", dpi=300, bbox_inches="tight", pad_inches=0.08)
+    plt.close(fig)
+    return pooled
+
+
+if __name__ == "__main__" and "--ga" in __import__("sys").argv:
+    print(fig_graphical_abstract())
