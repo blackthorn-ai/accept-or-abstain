@@ -135,8 +135,9 @@ def fig_risk_coverage():
         ax.set_xlabel("Coverage")
     for ax in axes[:, 0]:
         ax.set_ylabel("Selective error rate")
-    axes[0, 0].legend(fontsize=6.8, loc="upper left")
-    fig.tight_layout()
+    h, l = axes[0, 0].get_legend_handles_labels()
+    fig.legend(h, l, loc="upper center", ncol=4, fontsize=7.2, bbox_to_anchor=(0.5, 1.03))
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
     fig.savefig(FIG / "fig3_risk_coverage.pdf"); fig.savefig(FIG / "fig3_risk_coverage.png"); plt.close(fig)
 
 

@@ -10,3 +10,8 @@ paper/*.out
 paper/*.bbl
 paper/*.blg
 paper/*.toc
+paper/build.log
+paper/bib.log
+paper/missfont.log
+*.fls
+*.fdb_latexmk
