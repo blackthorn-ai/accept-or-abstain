@@ -137,4 +137,19 @@ out of scope.
 
 ## Changes after this version
 
-None yet.
+**1.1, 4 November 2026, before any gate or test metric was computed** (base-model
+predictions were being generated; none had been scored). Three points the text above
+left open are fixed as follows.
+- *A gate that abstains on every query* has no defined precision. Such a seed is left
+  out of the seed average. If every seed abstains, the cell is reported as
+  "abstained": it counts as meeting the target in H2 (no wrong prediction is
+  accepted) and is flagged in the tables.
+- *H4 on a test where Gate B accepts nothing* cannot be checked; it counts as a
+  failure of H4 for that test.
+- *Held-out tests used for H1–H4:* D1 cluster (logp/H), D1–E1 (logp/E1) and D1–E2
+  (logp_noCF/E2, all 183 compounds); D3a Test1–Test4 (bh_TestN/H) and D3b ligand
+  (sm_ligand/H). The random test R of each task is the in-distribution reference.
+- *Reduced training sets in D3a.* Holding out four calibration additives leaves about
+  1,640 reactions in F for each TestN, roughly half of the published training rows.
+  Ungated accuracy is therefore not directly comparable with published Test1–Test4
+  results.
