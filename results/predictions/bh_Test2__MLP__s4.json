@@ -1,0 +1,21 @@
+{
+ "cal_additives": [
+  "CC1=CC(N2C=CC=C2)=NO1",
+  "C1(C2=CC=CC=C2)=CC=NO1",
+  "C1(C2=CC=CC=C2)=CON=C1",
+  "O=C(OC)C1=NOC(C2=CC=CS2)=C1"
+ ],
+ "test_additives": [
+  "CC1=CC(C(OCC)=O)=NO1",
+  "CC1=CC(C)=NO1",
+  "CC1=CC=NO1",
+  "O=C(OC)C1=CC=NO1",
+  "O=C(OC)C1=NOC(C2=CC=CO2)=C1"
+ ],
+ "n_fit": 1635,
+ "n_C_r": 350,
+ "n_C_h": 719,
+ "n_R": 351,
+ "n_H": 900,
+ "seconds": 23.2
+}

@@ -1,0 +1,16 @@
+{
+ "test_ligands": [
+  "CataCXium A",
+  "AmPhos"
+ ],
+ "cal_ligands": [
+  "XPhos",
+  "None"
+ ],
+ "n_fit": 2688,
+ "n_C_r": 576,
+ "n_C_h": 960,
+ "n_R": 576,
+ "n_H": 960,
+ "seconds": 41.5
+}

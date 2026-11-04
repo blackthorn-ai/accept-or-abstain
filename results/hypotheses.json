@@ -1,0 +1,14 @@
+{
+ "RF": {
+  "H1": false,
+  "H2": false,
+  "H3": false,
+  "H4": false
+ },
+ "MLP": {
+  "H1": true,
+  "H2": true,
+  "H3": false,
+  "H4": false
+ }
+}

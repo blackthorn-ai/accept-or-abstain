@@ -24,7 +24,7 @@
 \maketitle
 
 \begin{abstract}
-\noindent A molecular property or reaction-yield model is useful to a chemist only when it is right on the query in front of them. Random train/test splits overstate how often that happens, and a model's own uncertainty is rarely checked on chemistry it has not seen. This study tests a simple accept-or-abstain protocol. The model returns a prediction only when a gate accepts the query and abstains otherwise. The gate scores each query by its similarity to the training set and by the spread of an ensemble, and its threshold is set by Learn-then-Test to a stated target precision on a calibration fold that is held out by chemistry rather than at random. We evaluated the protocol on public data: 23,401 logP values from SangsterLogP with two external sets, and the Buchwald--Hartwig and Suzuki--Miyaura high-throughput yield datasets. The evaluation used eight held-out tests and four hypotheses fixed before any test result was computed. Selective prediction worked on seven of the eight tests: accepting the 30\% most confident queries lowered the error rate by 0.16 to 0.35 in absolute terms. The calibration fold mattered most for yields. Gates calibrated on a random fold accepted almost every reaction with an unseen additive, at a precision of 0.59 to 0.75 against a target of 0.8. Gates calibrated on a held-out fold reached 0.87 to 0.90 on three of the four additive tests, at lower coverage. For the random forest, however, the fused score did no better than ensemble spread alone, and the similarity signal was weak. Conformal intervals lost coverage under shift, down to 0.64, and gating did not restore it for reactions. No gate helped on a fluorinated-compound hold-out. All four hypotheses therefore failed their pre-specified criteria. We report the protocol, the code and the complete results as a baseline for reliability gating on held-out chemistry.
+\noindent A molecular property or reaction-yield model is useful to a chemist only when it is right on the query in front of them. Random train/test splits overstate how often that happens, and a model's own uncertainty is rarely checked on chemistry it has not seen. This study tests a simple accept-or-abstain protocol. The model returns a prediction only when a gate accepts the query and abstains otherwise. The gate scores each query by its similarity to the training set and by the spread of an ensemble, and its threshold is set by Learn-then-Test to a stated target precision on a calibration fold that is held out by chemistry rather than at random. We evaluated the protocol on public data: 23,401 logP values from SangsterLogP with two external sets, and the Buchwald--Hartwig and Suzuki--Miyaura high-throughput yield datasets. The evaluation used eight held-out tests and four hypotheses fixed before any test result was computed. Selective prediction worked on seven of the eight tests: accepting the 30\% most confident queries lowered the error rate by 0.16 to 0.35 in absolute terms. The calibration fold mattered most for yields. Gates calibrated on a random fold accepted almost every reaction with an unseen additive, at a precision of 0.59 to 0.75 against a target of 0.8. Gates calibrated on a held-out fold reached 0.87 to 0.90 on three of the four additive tests, at lower coverage. For the random forest, however, the fused score did no better than ensemble spread alone, and the similarity signal was weak. Conformal intervals lost coverage under shift, down to 0.64, and gating did not restore it for reactions. No gate helped on a fluorinated-compound hold-out. For the primary model, all four hypotheses therefore failed their pre-specified criteria. With a neural ensemble as the base model, the gate lowered the error rate on all eight tests, but the gate calibrated on held-out folds abstained on every query. We report the protocol, the code and the complete results as a baseline for reliability gating on held-out chemistry.
 \end{abstract}
 
 \noindent\textbf{Keywords:} applicability domain, selective prediction, conformal prediction, uncertainty quantification, lipophilicity, reaction yield
@@ -87,7 +87,7 @@ It is worth mentioning that both reaction datasets come from single high-through
 
 The protocol has six steps (Figure~\ref{fig:protocol}). The user first states what a correct prediction is for the intended use (P1). In this study a logP prediction was correct if its absolute error was at most 0.5 log units, and a yield prediction if its absolute error was at most 10 percentage points. Coverage is the share of queries the gate accepts; selective precision is the share of accepted queries that are correct; the selective error rate is one minus selective precision. The data are then split by chemistry (P2), the model and its signals are fitted (P3), the gate is calibrated on a fold held out by chemistry to a target precision $t$ (P4), it is tested on further held-out sets (P5), and the result is published as an operating-limits card (P6): for each target and test, the coverage and the precision actually achieved.
 
-The full analysis plan, including every hypothesis and pass criterion below, was committed to the repository before any test-set prediction was scored. Three clarifications, also made before scoring, concern gates that abstain on every query and the list of held-out tests. Both are in the repository's commit history.
+The full analysis plan, including every hypothesis and pass criterion below, was committed to the repository before any test-set prediction was scored. Four clarifications, also made before scoring, cover gates that abstain on every query, H4 on tests where a gate accepts nothing, the list of held-out tests and the smaller BH fit sets. Both versions are in the repository's commit history.
 
 \subsection{Representations and models}
 
@@ -120,7 +120,7 @@ Thresholds were set on $C_b$ by Learn-then-Test.\cite{angelopoulos2021} Candidat
 \begin{equation}
 p = \Pr\left[\mathrm{Bin}(n, t) \ge k\right] \le \delta, \qquad \delta = 0.1,
 \end{equation}
-and the loosest threshold reached before the first failure is used. If no threshold passes, the gate abstains on every query. For queries exchangeable with $C_b$, the selective precision of the chosen threshold is at least $t$ with probability at least $1-\delta$. The guarantee says nothing about other queries; that is exactly why the choice between $C_r$ and $C_h$ matters. Gate~A, a conjunctive baseline without a guarantee, accepts a query if $s_1 \ge \tau_1$ and $u \le \tau_2$, with the pair chosen from a $20\times20$ grid of quantiles on the whole calibration fold as the largest coverage whose empirical precision is at least $t$. Targets were $t = 0.8$ and $0.9$.
+and the loosest threshold reached before the first failure is used. If no threshold passes, the gate abstains on every query. For queries exchangeable with $C_b$, the selective precision of the chosen threshold is then at least $t$ with probability at least $1-\delta$. Because the candidate thresholds are taken from the calibration scores themselves, a common simplification, the guarantee is approximate. More importantly, it says nothing about queries that are not exchangeable with $C_b$; that is exactly why the choice between $C_r$ and $C_h$ matters. Gate~A, a conjunctive baseline without a guarantee, accepts a query if $s_1 \ge \tau_1$ and $u \le \tau_2$, with the pair chosen from a $20\times20$ grid of quantiles on the whole calibration fold as the largest coverage whose empirical precision is at least $t$. Targets were $t = 0.8$ and $0.9$.
 
 \subsection{Metrics and hypotheses}
 
@@ -174,7 +174,7 @@ The fluorinated hold-out behaved differently. The model trained without any sp\t
 
 Ranking queries by the fused score lowered the error rate on seven of the eight held-out tests (Figure~\ref{fig:rc}). At 30\% coverage, the error rate fell from 0.49 to 0.29 on held-out logP clusters, from 0.39 to 0.22 on E1, from 0.27--0.41 to 0.04--0.20 on the four BH tests, and from 0.49 to 0.14 on the SM ligand test; every 95\% interval excluded zero. On E2 it fell only from 0.355 to 0.345, with an interval of $-0.064$ to $+0.029$. Because the pre-specified criterion required every test, H1 does not hold, although it held on seven of eight.
 
-The ranking came almost entirely from the ensemble spread. For M1, the similarity signal $s_1$ was much weaker than $-u$ on every held-out test (Table~\ref{tab:aurc}). On the reaction tests it was far weaker than the spread, and on the SM ligand test it was worse than a random ordering. A likely reason is that every reaction in these datasets shares most of its components with reactions in $F$, so similarity varies little between reactions. The fused score therefore learned to follow $u$, and its AURC was within 2\% of that of $-u$ on every test, from 1.7\% better to 0.9\% worse. H3 does not hold for M1. This agrees with earlier reports that ensemble disagreement is one of the most reliable distance-to-model measures,\cite{tetko2008,kaneko2014} and with benchmarks in which no single uncertainty estimate dominated.\cite{hirschfeld2020,scalia2020} %MLP-H3%
+The ranking came almost entirely from the ensemble spread. For M1, the similarity signal $s_1$ was much weaker than $-u$ on every held-out test (Table~\ref{tab:aurc}). On the reaction tests it was far weaker than the spread, and on the SM ligand test it was worse than a random ordering. A likely reason is that every reaction in these datasets shares most of its components with reactions in $F$, so similarity varies little between reactions. The fused score therefore learned to follow $u$, and its AURC was within 2\% of that of $-u$ on every test, from 1.7\% better to 0.9\% worse. H3 does not hold for M1. This agrees with earlier reports that ensemble disagreement is one of the most reliable distance-to-model measures,\cite{tetko2008,kaneko2014} and with benchmarks in which no single uncertainty estimate dominated.\cite{hirschfeld2020,scalia2020}
 
 On E2, neither signal tracked the error: the rank correlation between absolute error and $u$ ranged from $-0.05$ to $0.22$ across seeds, compared with 0.28--0.38 on held-out clusters. The signals did register that the fluorinated compounds were unfamiliar: their mean $s_1$ was 0.43--0.46 across seeds, against 0.49--0.54 for the parents and 0.65--0.66 for the random test, and their spread was higher. But the model was not worse on them, so novelty and error were decoupled.
 
@@ -223,9 +223,21 @@ Calibrated on $C_r$, the 90\% intervals covered 0.88--0.92 of every random test,
 \label{fig:fl}
 \end{figure}
 
-Figure~\ref{fig:fl} shows the fluorinated case in detail. The gate declined almost every fluorinated compound: it accepted 0.6\% of them, against 14\% of the parents. Yet the model's ungated error rate was lower on the fluorinated compounds than on the parents. In this case the gate behaved as a novelty detector: it declined what was unfamiliar, whether or not the prediction was wrong. For a user this is the safe failure. The gate gave up coverage it could have had, but it did not accept wrong predictions. The precision it reached on the few accepted E2 compounds (0.67) was nevertheless below target.
+Figure~\ref{fig:fl} shows the fluorinated case in detail. The gate declined almost every fluorinated compound: it accepted 0.6\% of them, against 14\% of the parents. Yet the model's ungated error rate was lower on the fluorinated compounds than on the parents. In this case the gate behaved as a novelty detector: it declined what was unfamiliar, whether or not the prediction was wrong. It gave up coverage it could have had, and it did not buy precision with it: on the few E2 compounds it did accept, mostly parents, the precision was 0.67, below the target of 0.8.
 
-%MLP-SECTION%
+\subsection{A second model family}
+
+\begin{table}[t]
+\centering
+\caption{Pre-specified hypotheses and their outcomes. M1 decides; M2 is a robustness check. For M2, H2 holds only vacuously: its $C_h$-calibrated gate abstained on every query of every held-out test, which the protocol counts as not missing the target.}
+\label{tab:verdicts}
+\small
+\input{tables/t4_verdicts.tex}
+\end{table}
+
+The MLP ensemble (M2) was somewhat more accurate than the random forest on random and held-out logP clusters (RMSE 0.62 and 0.84, against 0.68 and 0.90) and on the random BH tests, and similar on held-out additives (Table~S1). It generalised worse to the fluorinated hold-out: its error rate on E2 was 0.48, against 0.36 for M1, and 0.50 on the sp\textsuperscript{3} C--F compounds alone. Its signals also behaved differently. On the logP tests, the similarity signal ranked errors better than the spread of the MLP ensemble, and the fused score improved on the better single signal by 7.4\%, 2.8\% and 5.7\% (Table~S2). That is more than for M1, but short of the 10\% that H3 requires. On reactions, the fused score was no better than spread, and on the SM test it was 7\% worse. H3 therefore fails for M2 too.
+
+H1 held for M2 on all eight tests, although the reductions on reactions were small (0.03 to 0.09). The $C_h$-calibrated gate of M2, however, abstained on every query of every held-out test (Table~S3): on the held-out calibration folds, no threshold that accepted at least 50 points passed the binomial test. H2 therefore holds for M2 only vacuously, under the rule, fixed before scoring, that a gate accepting nothing does not miss its target, and H4 cannot be checked. The $C_r$-calibrated gate of M2 missed its target on every BH test by a wider margin than M1, with a precision of 0.52--0.70 at $t = 0.8$. Table~\ref{tab:verdicts} summarises the outcomes.
 
 \subsection{Limitations}
 \label{sec:limits}
@@ -234,7 +246,7 @@ The study is retrospective: every split was drawn from existing data, and no pre
 
 \section{Conclusions}
 
-A reliability gate is easy to build from signals most models already have, and on seven of eight held-out tests ranking queries by such a gate lowered the error rate substantially. The way the gate's threshold is calibrated mattered more than the choice of signal. A threshold calibrated on a random fold, as is usual, accepted nearly all reactions with an unseen additive at a precision well below its target. A threshold calibrated on a fold held out in the same way as the intended use came much closer to the target, at the cost of coverage that the card makes explicit. On the other hand, for the random forest, combining similarity with ensemble spread added nothing to spread alone. Conformal intervals lost coverage under shift, and gating did not restore it for reactions. On fluorinated compounds the gate was cautious where the model was in fact accurate. All four pre-specified hypotheses failed their criteria, and we report them as such. The practical recommendation that survives is narrower than the one we set out to test: calibrate abstention thresholds on data held out by chemistry, and publish the coverage and precision achieved on held-out tests, not on random ones.
+A reliability gate is easy to build from signals most models already have, and on seven of eight held-out tests ranking queries by such a gate lowered the error rate substantially. The way the gate's threshold is calibrated mattered more than the choice of signal. A threshold calibrated on a random fold, as is usual, accepted nearly all reactions with an unseen additive at a precision well below its target. A threshold calibrated on a fold held out in the same way as the intended use came much closer to the target, at the cost of coverage that the card makes explicit. On the other hand, for the random forest, combining similarity with ensemble spread added nothing to spread alone. Conformal intervals lost coverage under shift, and gating did not restore it for reactions. On fluorinated compounds the gate was cautious where the model was in fact accurate. All four pre-specified hypotheses failed their criteria for the primary model, and we report them as such. A neural ensemble ranked errors on every held-out test, but its held-out-calibrated gate could certify none of them. The practical recommendation that survives is narrower than the one we set out to test: calibrate abstention thresholds on data held out by chemistry, and publish the coverage and precision achieved on held-out tests, not on random ones.
 
 \section*{Data and code availability}
 All data are public (SangsterLogP, CC BY 4.0;\cite{sangsterzenodo} the Buchwald--Hartwig, Suzuki--Miyaura and fluorinated-amide data under the MIT licence of their repositories). The code, the analysis protocol with its commit history, the split definitions, all per-query predictions and the scripts that generate every figure and table are available at \url{https://github.com/blackthorn-ai/accept-or-abstain} under the MIT licence. \textcolor{red}{[Repository to be made public, and an archived release with a Zenodo DOI added, before posting.]}
@@ -253,5 +265,39 @@ This work received no specific funding.
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}
+
+\clearpage
+\appendix
+\renewcommand{\thetable}{S\arabic{table}}
+\setcounter{table}{0}
+\section*{Supporting information}
+
+\begin{table}[h]
+\centering
+\caption{Ungated accuracy of M2, the MLP ensemble (mean $\pm$ s.d. over five seeds).}
+\small
+\input{tables/t2_accuracy_MLP.tex}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{AURC of the selective error rate for M2 (mean over seeds).}
+\small
+\input{tables/t5_aurc_MLP.tex}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Operating-limits card for Gate~B with M2 at $t = 0.8$ (definitions as in Table~\ref{tab:card}).}
+\small
+\resizebox{\linewidth}{!}{\input{tables/t3_card_MLP_8.tex}}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Operating-limits card for Gate~B with M1 at $t = 0.9$ (definitions as in Table~\ref{tab:card}).}
+\small
+\resizebox{\linewidth}{!}{\input{tables/t3_card_RF_9.tex}}
+\end{table}
 
 \end{document}

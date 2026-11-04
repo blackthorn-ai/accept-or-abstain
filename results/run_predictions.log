@@ -1,0 +1,7 @@
+logp       MLP  seed 0: fit 11421  216.7 s
+logp       MLP  seed 1: fit 11431  157.3 s
+logp       MLP  seed 2: fit 11464  229.0 s
+logp       MLP  seed 3: fit 11445  252.2 s
+logp       MLP  seed 4: fit 11386  197.1 s
+logp_noCF  MLP  seed 3: fit 10702  193.4 s
+logp_noCF  MLP  seed 4: fit 10674  146.4 s
