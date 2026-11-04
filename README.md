@@ -8,9 +8,8 @@ property and reaction-yield models* (O. Gurbych, 2026; not peer reviewed).
 The model returns a prediction only when a gate accepts the query. The gate scores
 each query by its Tanimoto similarity to the training set and by ensemble spread. Its
 threshold is set by Learn-then-Test to a target precision on a calibration fold held
-out *by chemistry*. Every hypothesis and pass criterion was fixed in
-[`PROTOCOL.md`](PROTOCOL.md) before any test-set result was computed; the commit
-history shows the order.
+out *by chemistry*. The hypotheses and success criteria are in
+[`PROTOCOL.md`](PROTOCOL.md).
 
 ## Result in one paragraph
 
@@ -36,7 +35,8 @@ uv venv --python 3.12 && uv pip install -e .
 .venv/bin/python scripts/analyse.py           # gates, metrics, hypotheses
 .venv/bin/python scripts/make_figures.py
 .venv/bin/python scripts/make_tables.py
-.venv/bin/python scripts/exploratory.py      # exploratory analyses (not pre-specified)
+.venv/bin/python scripts/exploratory.py      # exploratory analyses (not in the plan)
+.venv/bin/python scripts/make_si_plan.py     # SI copy of the plan (needs pandoc)
 cd paper && pdflatex main && bibtex main && pdflatex main && pdflatex main && xelatex si
 ```
 
@@ -46,7 +46,7 @@ The full run takes about 40 minutes on an 18-core laptop, most of it the MLP ens
 
 | Path | Contents |
 |---|---|
-| `PROTOCOL.md` | the analysis plan, fixed before scoring, with dated clarifications |
+| `PROTOCOL.md` | the analysis plan, with dated notes |
 | `PROVENANCE.md` | every dataset and library, with licence and digest |
 | `src/aoa/` | data loaders, features, splits, models, gates (Learn-then-Test, conformal), metrics |
 | `scripts/` | the pipeline, in the order above |

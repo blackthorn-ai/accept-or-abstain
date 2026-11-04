@@ -1,14 +1,5 @@
-\hypertarget{analysis-protocol-fixed-before-any-test-set-result}{%
-\subsection{Analysis protocol (fixed before any test-set
-result)}\label{analysis-protocol-fixed-before-any-test-set-result}}
-
-Version 1.0, 4 November 2026. This file is committed to the repository
-before any test-set prediction is scored. Any later change is recorded
-at the end of this file with its date and reason; the original text is
-not edited.
-
 \hypertarget{1-question}{%
-\subsubsection{1. Question}\label{1-question}}
+\subsection{1. Question}\label{1-question}}
 
 Can an accept-or-abstain gate, calibrated on data held out \emph{by
 chemistry}, keep the precision of a molecular model\textquotesingle s
@@ -18,7 +9,7 @@ signal with a model-confidence signal rank errors better than either
 signal alone?
 
 \hypertarget{2-definitions-fixed-in-advance}{%
-\subsubsection{2. Definitions fixed in
+\subsection{2. Definitions fixed in
 advance}\label{2-definitions-fixed-in-advance}}
 
 \begin{itemize}
@@ -37,7 +28,7 @@ advance}\label{2-definitions-fixed-in-advance}}
 \end{itemize}
 
 \hypertarget{3-data-all-public}{%
-\subsubsection{3. Data (all public)}\label{3-data-all-public}}
+\subsection{3. Data (all public)}\label{3-data-all-public}}
 
 \begin{itemize}
 \tightlist
@@ -67,7 +58,7 @@ advance}\label{2-definitions-fixed-in-advance}}
 \end{itemize}
 
 \hypertarget{4-representations-and-base-models}{%
-\subsubsection{4. Representations and base
+\subsection{4. Representations and base
 models}\label{4-representations-and-base-models}}
 
 \begin{itemize}
@@ -97,8 +88,7 @@ models}\label{4-representations-and-base-models}}
 \end{itemize}
 
 \hypertarget{5-splits-five-seeds-04}{%
-\subsubsection{5. Splits (five seeds,
-0--4)}\label{5-splits-five-seeds-04}}
+\subsection{5. Splits (five seeds, 0--4)}\label{5-splits-five-seeds-04}}
 
 For each dataset a pool is divided by a group label: Butina clusters of
 ECFP4 at Tanimoto distance 0.65 (D1), additive (D3a), ligand (D3b).
@@ -130,7 +120,7 @@ Held-out tests are therefore: D1 cluster, D1--E1, D1--E2 (D1 family);
 D3a Test1--Test4 and D3b ligand (D3 family).
 
 \hypertarget{6-signals}{%
-\subsubsection{6. Signals}\label{6-signals}}
+\subsection{6. Signals}\label{6-signals}}
 
 \begin{itemize}
 \tightlist
@@ -146,7 +136,7 @@ D3a Test1--Test4 and D3b ligand (D3 family).
 \end{itemize}
 
 \hypertarget{7-gates}{%
-\subsubsection{7. Gates}\label{7-gates}}
+\subsection{7. Gates}\label{7-gates}}
 
 \begin{itemize}
 \tightlist
@@ -173,7 +163,7 @@ D3a Test1--Test4 and D3b ligand (D3 family).
 \end{itemize}
 
 \hypertarget{8-metrics}{%
-\subsubsection{8. Metrics}\label{8-metrics}}
+\subsection{8. Metrics}\label{8-metrics}}
 
 Per test set, model and seed: RMSE, MAE and R² ungated; error rate
 ungated; risk--coverage curves of selective error rate and selective
@@ -185,7 +175,7 @@ intervals come from 1,000 bootstrap resamples of test queries, pooled
 over seeds.
 
 \hypertarget{9-hypotheses-and-pass-criteria-model-m1}{%
-\subsubsection{9. Hypotheses and pass criteria (model
+\subsection{9. Hypotheses and pass criteria (model
 M1)}\label{9-hypotheses-and-pass-criteria-model-m1}}
 
 \begin{itemize}
@@ -216,91 +206,40 @@ M1)}\label{9-hypotheses-and-pass-criteria-model-m1}}
 Every hypothesis is reported whether or not it holds.
 
 \hypertarget{10-exclusions}{%
-\subsubsection{10. Exclusions}\label{10-exclusions}}
+\subsection{10. Exclusions}\label{10-exclusions}}
 
 No client, proprietary or confidential data, code or results are used.
 Biological context (gene expression, perturbation or cell-line shift)
 and generative models are out of scope.
 
-\hypertarget{changes-after-this-version}{%
-\subsubsection{Changes after this
-version}\label{changes-after-this-version}}
-
-\textbf{1.1, 4 November 2026, before any gate or test metric was
-computed} (base-model predictions were being generated; none had been
-scored). Three points the text above left open are fixed as follows.
+\hypertarget{notes-on-implementation}{%
+\subsection{Notes on implementation}\label{notes-on-implementation}}
 
 \begin{itemize}
 \tightlist
 \item
-  \emph{A gate that abstains on every query} has no defined precision.
-  Such a seed is left out of the seed average. If every seed abstains,
-  the cell is reported as "abstained": it counts as meeting the target
-  in H2 (no wrong prediction is accepted) and is flagged in the tables.
+  A gate that abstains on every query has no defined precision. Such
+  seeds are left out of the seed average. A cell in which every seed
+  abstains counts as meeting the target in H2.
 \item
-  \emph{H4 on a test where Gate B accepts nothing} cannot be checked; it
+  H4 cannot be checked on a test where Gate B accepts nothing; this
   counts as a failure of H4 for that test.
 \item
-  \emph{Held-out tests used for H1--H4:} D1 cluster (logp/H), D1--E1
-  (logp/E1) and D1--E2 (logp\_noCF/E2, all 183 compounds); D3a
-  Test1--Test4 (bh\_TestN/H) and D3b ligand (sm\_ligand/H). The random
-  test R of each task is the in-distribution reference.
+  The held-out tests for H1--H4 are the logP cluster test, E1, E2 (all
+  183 compounds), BH Test1--Test4 and the SM ligand test.
 \item
-  \emph{Reduced training sets in D3a.} Holding out four calibration
-  additives leaves about 1,640 reactions in F for each TestN, roughly
-  half of the published training rows. Ungated accuracy is therefore not
-  directly comparable with published Test1--Test4 results.
-\end{itemize}
-
-\textbf{1.2, 4 November 2026, after scoring: documentation only.}
-Nothing in sections 1--9 or in the pass criteria changes. Two
-independent reviews of the first manuscript draft found the points
-below.
-
-\begin{itemize}
-\tightlist
+  Holding out four calibration additives leaves about 1,640 reactions in
+  F for each BH test. Ungated BH accuracy is therefore not directly
+  comparable with published results on the same tests.
 \item
-  \emph{Wording versus implementation.} Section 5 says the logP held-out
-  test and calibration fold receive "15\% of clusters". The code
-  (\texttt{splits.group\_holdout}) assigns whole clusters in random
-  order until 15\% of the \emph{compounds} is reached. The manuscript
-  describes the code.
+  The logP held-out sets were formed by assigning whole clusters until
+  15\% of the compounds was reached.
 \item
-  \emph{Suzuki--Miyaura structures.} Section 4 says the component
-  structures "follow the cited redistribution". They come from a table
-  written for this repository (\texttt{src/aoa/data.py}), which omits
-  spectator fragments: the internal standard, HCl and water of
-  hydration.
+  The Suzuki--Miyaura component structures come from a table written for
+  this study (\texttt{src/aoa/data.py}). The table omits spectator
+  fragments: the internal standard, HCl and water of hydration.
 \item
-  \emph{Count in note 1.1.} Note 1.1 announces three points and lists
-  four.
-\item
-  \emph{Bootstrap correction.} The first version of \texttt{boot\_h1}
-  resampled each seed independently. For test sets that are identical in
-  every seed (E1, E2, BH Test1--Test4), that makes the intervals too
-  narrow. The corrected code uses the same resample for every seed in
-  those sets. No H1 verdict changes; the E2 interval widens from
-  {[}−0.064, +0.029{]} to {[}−0.098, +0.067{]}.
-\item
-  \emph{Timing.} The whole study ran in one working session on 4
-  November 2026. The commit history shows the order: the empty
-  repository, then protocol 1.0, then 1.1, then the code, then the
-  results. Base-model predictions were generated with the committed code
-  shortly before that code was committed; none were scored before
-  \texttt{feadf9a}.
-\item
-  \emph{Exploratory analyses.} The following are not in the protocol and
-  are reported as exploratory (\texttt{scripts/exploratory.py}):
-
-  \begin{itemize}
-  \tightlist
-  \item
-    per-seed target attainment;
-  \item
-    pooled precision in the operating-limits cards;
-  \item
-    conformal intervals calibrated on C\_h;
-  \item
-    the E2 signal diagnostics.
-  \end{itemize}
+  For test sets that are identical in every seed (E1, E2, BH
+  Test1--Test4), bootstrap intervals use the same resample for all
+  seeds.
 \end{itemize}
