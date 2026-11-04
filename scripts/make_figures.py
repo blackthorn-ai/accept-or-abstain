@@ -260,6 +260,23 @@ if __name__ == "__main__":
 
 
 # ------------------------------------------------------------------ graphical abstract (ChemRxiv)
+def _molecule_png(smiles: str, w: int = 330, h: int = 230):
+    """RDKit depiction with a transparent background, thick bonds for small display."""
+    import io
+    from rdkit import Chem
+    from rdkit.Chem.Draw import rdMolDraw2D
+    d = rdMolDraw2D.MolDraw2DCairo(w, h)
+    o = d.drawOptions()
+    o.clearBackground = False
+    o.bondLineWidth = 6
+    o.padding = 0.06
+    o.minFontSize = 30
+    o.maxFontSize = 34
+    d.DrawMolecule(Chem.MolFromSmiles(smiles))
+    d.FinishDrawing()
+    return plt.imread(io.BytesIO(d.GetDrawingText()), format="png")
+
+
 def fig_graphical_abstract():
     L = pd.read_csv(RES / "metrics_long.csv")
     L = L[(L.model == MODEL) & (L.gate == "LTT_fused") & (L.target == 0.8) & (L.test == "H")]
@@ -271,44 +288,57 @@ def fig_graphical_abstract():
             n = d.n_acc.sum()
             pooled[(cal, t)] = ((d.precision.fillna(0) * d.n_acc).sum() / n if n else np.nan, d.coverage.mean())
 
-    fig = plt.figure(figsize=(8, 4))
-    fig.text(0.5, 0.95, "Accept or abstain: calibrate the gate on held-out chemistry",
-             ha="center", va="center", fontsize=13, weight="bold")
-    # left: the gate
-    ax = fig.add_axes([0.01, 0.06, 0.47, 0.80]); ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.axis("off")
-    def box(x, y, w, h, txt, fc="#f3f6fa", ec="#4a5a70", fs=9.5, bold=False):
-        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.4,rounding_size=2", fc=fc, ec=ec, lw=1.2))
-        ax.text(x + w / 2, y + h / 2, txt, ha="center", va="center", fontsize=fs, weight="bold" if bold else None,
-                linespacing=1.2)
-    def arrow(x0, y0, x1, y1, col="#4a5a70"):
-        ax.add_patch(FancyArrowPatch((x0, y0), (x1, y1), arrowstyle="-|>", mutation_scale=12, lw=1.3, color=col))
-    box(2, 62, 25, 24, "Query\nmolecule or\nreaction")
-    box(35, 62, 27, 24, "Model\n+ signals\n$s_1$ (similarity)\n$u$ (spread)", fs=8.8)
-    box(70, 62, 28, 24, "Gate:\nthreshold for a\ntarget precision", fc="#eef5f0", ec="#009E73", fs=9)
-    arrow(27.5, 74, 34.5, 74); arrow(62.5, 74, 69.5, 74)
-    box(60, 30, 18, 16, "Accept:\nprediction", fc="#e8f4ec", ec="#009E73", fs=8.3)
-    box(81, 30, 17, 16, "Abstain", fc="#fbeee6", ec="#D55E00", fs=8.6)
-    arrow(80, 61.5, 70, 46.5, "#009E73"); arrow(89, 61.5, 89.5, 46.5, "#D55E00")
-    box(2, 24, 50, 30, "Threshold set by\nLearn-then-Test on a fold\nheld out by chemistry ($C_h$),\nnot at random ($C_r$)",
-        fc="#ffffff", ec="#009E73", fs=8.3)
-    arrow(52.5, 52, 69.5, 63, "#009E73")
-    # right: the result
-    ax2 = fig.add_axes([0.57, 0.17, 0.41, 0.62])
+    ink, grey = "#1f2a36", "#5f6b78"
+    fig = plt.figure(figsize=(7.0, 3.5))
+    A = fig.add_axes([0, 0, 1, 1]); A.set_xlim(0, 100); A.set_ylim(0, 50); A.axis("off")
+    fig.text(0.5, 0.925, "Calibrate abstention on held-out chemistry", ha="center", va="center",
+             fontsize=15.5, weight="bold", color=ink)
+
+    # ---- left: query -> gate -> prediction / abstain
+    ax_m = fig.add_axes([0.0, 0.39, 0.175, 0.35]); ax_m.imshow(_molecule_png("c1ccc(-c2ccno2)cc1")); ax_m.axis("off")
+    A.text(9.0, 18.6, "unseen\nadditive", ha="center", va="center", fontsize=10.5, color=grey, linespacing=1.1)
+    A.add_patch(FancyArrowPatch((17.2, 28.5), (20.6, 28.5), arrowstyle="-|>", mutation_scale=13, lw=1.6, color=ink))
+    A.add_patch(FancyBboxPatch((21.2, 22.5), 10.6, 12, boxstyle="round,pad=0.4,rounding_size=1.6",
+                               fc="#ffffff", ec=ink, lw=1.6))
+    A.text(26.5, 30.6, "gate", ha="center", va="center", fontsize=13, weight="bold", color=ink)
+    A.text(26.5, 25.6, "$s_1$, $u$", ha="center", va="center", fontsize=11, color=grey)
+    A.add_patch(FancyArrowPatch((32.6, 31.5), (36.0, 35.0), arrowstyle="-|>", mutation_scale=12, lw=1.5, color=ink))
+    A.add_patch(FancyArrowPatch((32.6, 25.5), (36.0, 22.0), arrowstyle="-|>", mutation_scale=12, lw=1.5, color=ink))
+    A.text(36.6, 35.6, "\u2713 predict", ha="left", va="center", fontsize=12, color=ink)
+    A.text(36.6, 21.4, "\u2717 abstain", ha="left", va="center", fontsize=12, color=ink)
+    # ---- calibration choice doubles as the chart legend
+    A.text(2.0, 12.2, "Threshold calibrated on", ha="left", va="center", fontsize=10.5, color=grey)
+    A.add_patch(FancyArrowPatch((26.5, 14.4), (26.5, 21.6), arrowstyle="-|>", mutation_scale=11, lw=1.3,
+                                color=grey, linestyle=(0, (3, 2))))
+    for y, cal, lab in [(7.0, "C_r", "a random fold"), (2.6, "C_h", "held-out chemistry")]:
+        A.scatter([3.4], [y], s=95, color=C[cal], zorder=3)
+        A.text(5.4, y, lab, ha="left", va="center", fontsize=12, color=C[cal], weight="bold")
+
+    # ---- right: dumbbell chart of achieved precision at target 0.8
+    ax = fig.add_axes([0.615, 0.155, 0.365, 0.645])
     x = np.arange(len(tests))
-    for off, cal, col, lab in [(-0.19, "C_r", C["C_r"], "Calibrated on random fold"),
-                               (0.19, "C_h", C["C_h"], "Calibrated on held-out additives")]:
-        vals = [pooled[(cal, t)][0] for t in tests]
-        covs = [pooled[(cal, t)][1] for t in tests]
-        ax2.bar(x + off, vals, 0.36, color=col, label=lab)
-        for xi, v, c in zip(x + off, vals, covs):
-            ax2.text(xi, v + 0.012, f"{c:.0%}", ha="center", fontsize=7, color="#333")
-    ax2.axhline(0.8, color="k", lw=1); ax2.text(3.62, 0.805, "target 0.8", ha="right", va="bottom", fontsize=7.5)
-    ax2.set_ylim(0.4, 1.0); ax2.set_xticks(x, ["Test1", "Test2", "Test3", "Test4"])
-    ax2.set_ylabel("Precision of accepted predictions")
-    ax2.set_title("Buchwald–Hartwig, unseen additives\n(labels: share of reactions accepted)", fontsize=9)
-    ax2.legend(fontsize=7.5, loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=1, frameon=False)
+    for xi, t in zip(x, tests):
+        (pr, cr), (ph, ch) = pooled[("C_r", t)], pooled[("C_h", t)]
+        if ph - pr > 0.06:  # a shorter arrow would be hidden behind the dots
+            ax.annotate("", xy=(xi, ph), xytext=(xi, pr),
+                        arrowprops=dict(arrowstyle="-|>", color="#8a96a3", lw=1.8, shrinkA=7, shrinkB=7,
+                                        mutation_scale=12))
+        ax.scatter([xi], [pr], s=150, color=C["C_r"], zorder=3)
+        ax.scatter([xi], [ph], s=150, color=C["C_h"], zorder=3)
+        ax.text(xi + 0.19, pr, f"{cr:.0%}", ha="left", va="center", fontsize=10.5, color=C["C_r"])
+        ax.text(xi + 0.19, ph, f"{ch:.0%}", ha="left", va="center", fontsize=10.5, color=C["C_h"])
+    ax.axhline(0.8, color=ink, lw=1.4, ls=(0, (5, 3)), zorder=1)
+    ax.text(3.72, 0.808, "target", ha="right", va="bottom", fontsize=10.5, color=ink)
+    ax.set_xlim(-0.45, 3.75); ax.set_ylim(0.52, 0.93)
+    ax.set_yticks([0.6, 0.7, 0.8, 0.9]); ax.tick_params(labelsize=11, colors=ink)
+    ax.set_xticks(x, ["1", "2", "3", "4"])
+    ax.set_xlabel("Buchwald\u2013Hartwig test (unseen additives)", fontsize=11, color=ink)
+    ax.set_ylabel("precision of\naccepted predictions", fontsize=11, color=ink, linespacing=1.1)
+    ax.text(-0.28, 0.915, "% = reactions accepted", ha="left", va="center", fontsize=10, color=grey)
+    for s in ("left", "bottom"):
+        ax.spines[s].set_color(ink)
     for ext in ("png", "pdf"):
-        fig.savefig(FIG / f"graphical_abstract.{ext}", dpi=300, bbox_inches="tight", pad_inches=0.08)
+        fig.savefig(FIG / f"graphical_abstract.{ext}", dpi=300, bbox_inches="tight", pad_inches=0.06)
     plt.close(fig)
     return pooled
 
