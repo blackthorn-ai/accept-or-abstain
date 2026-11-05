@@ -3,7 +3,9 @@
 A held-out-calibrated accept-or-abstain protocol for molecular property and
 reaction-yield models, and the code for the preprint *Accept or abstain? A
 pre-specified test of reliability gates calibrated on held-out chemistry for molecular
-property and reaction-yield models* (O. Gurbych, 2026; not peer reviewed).
+property and reaction-yield models* (O. Gurbych, ChemRxiv, 2026,
+[doi:10.26434/chemrxiv.15011706/v1](https://doi.org/10.26434/chemrxiv.15011706/v1);
+a preprint, not peer reviewed).
 
 The model returns a prediction only when a gate accepts the query. The gate scores
 each query by its Tanimoto similarity to the training set and by ensemble spread. Its
@@ -53,6 +55,25 @@ The full run takes about 40 minutes on an 18-core laptop, most of it the MLP ens
 | `results/predictions/` | one file per task, model and seed: every query's prediction, spread and similarity |
 | `results/` | metric tables, `hypotheses.md` |
 | `paper/` | LaTeX source, figures and tables of the preprint |
+
+## How to cite
+
+Gurbych, O. Accept or abstain? A pre-specified test of reliability gates calibrated on
+held-out chemistry for molecular property and reaction-yield models. *ChemRxiv* 2026.
+https://doi.org/10.26434/chemrxiv.15011706/v1 (preprint, not peer reviewed).
+
+```bibtex
+@article{gurbych2026acceptorabstain,
+  author  = {Gurbych, Oleksandr},
+  title   = {Accept or abstain? {A} pre-specified test of reliability gates calibrated
+             on held-out chemistry for molecular property and reaction-yield models},
+  journal = {ChemRxiv},
+  year    = {2026},
+  doi     = {10.26434/chemrxiv.15011706/v1},
+  url     = {https://doi.org/10.26434/chemrxiv.15011706/v1},
+  note    = {Preprint, not peer reviewed}
+}
+```
 
 ## Licence
 
