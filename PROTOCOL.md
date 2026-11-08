@@ -182,3 +182,27 @@ draft found the points below.
   - pooled precision in the operating-limits cards;
   - conformal intervals calibrated on C_h;
   - the E2 signal diagnostics.
+
+
+**1.3, 8 November 2026, post hoc interpretation and descriptive reporting.** The
+original protocol, hypotheses, success criteria and numerical procedures above are
+retained as history. This note does not retroactively prespecify a new analysis.
+- The implemented binomial-test sequence is now described as an empirical rule
+  inspired by Learn-then-Test. Its data-dependent candidate thresholds/order do
+  not establish the previously asserted finite-sample guarantee.
+- The random/held-out comparison changes scorer fitting, threshold-selection
+  observations and their sizes; it compares complete pipelines, not only thresholds.
+- The conformal-style rule retains the calibration-derived normalizer and original
+  NumPy `higher` quantile convention. Ordinary marginal or gate-conditional coverage
+  guarantees are not established for this implementation or the shifted tests.
+- Pooled Wilson intervals were withdrawn because repeated query–seed observations
+  are dependent. Pooled precision is descriptive. Per-seed counts, precision and
+  coverage are added for both models, calibration folds and targets (SI S5–S8).
+  No new population-level interval is substituted without a justified paired/group
+  sampling target and statistical review. Original H1 query-bootstrap limitations
+  are now explicit; its calculations and hypothesis decisions are retained.
+- The 182-compound E1/E2 overlap and common BH campaign preclude interpreting the
+  eight tests as eight independent replications.
+- The manuscript, SI, README, figures, source package and AI-use disclosure are
+  synchronized. This is an unposted working revision, not a posted version 2.
+See `REVISION_NOTES.md` and `results/revision/verification.json` for verification.

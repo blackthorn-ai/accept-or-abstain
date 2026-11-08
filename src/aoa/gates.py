@@ -1,8 +1,13 @@
-"""Accept-or-abstain gates, Learn-then-Test thresholds and conformal intervals.
+"""Empirical accept-or-abstain gates and conformal-style intervals.
 
 Protocol sections 6-7. A *score* is any per-query number where larger means "more
 likely to be correct": s1 (similarity), -u (negative spread), or the fused
 probability of Gate B.
+
+The historical ltt_threshold name is retained for reproducibility. Its
+calibration-derived candidates do not have an established finite-sample risk
+guarantee. The interval rule also retains its original calibration-derived
+normalizer and NumPy quantile convention; coverage is evaluated empirically.
 """
 from __future__ import annotations
 
@@ -42,11 +47,15 @@ class FusedScorer:
 
 
 def ltt_threshold(score_cal, correct_cal, target: float, delta: float = 0.1) -> float:
-    """Learn-then-Test threshold by fixed-sequence binomial testing.
+    """Empirical binomial-test sequence inspired by Learn-then-Test.
 
     Candidates are the distinct calibration scores, from strict (high) to loose. The
     sequence starts at the strictest threshold accepting at least N_MIN points (or all
     points, if fewer exist). Returns +inf if no threshold passes (abstain on all).
+    Candidates and their sequence depend on the same calibration observations
+    used for testing. No finite-sample selective-precision guarantee is established
+    for this implementation; delta is the per-candidate test cutoff, not a proved
+    probability of target attainment. The original calculation is unchanged.
     """
     s = np.asarray(score_cal, dtype=float)
     c = np.asarray(correct_cal).astype(int)
@@ -100,7 +109,15 @@ def conjunctive_gate(s1_cal, u_cal, correct_cal, target: float, grid: int = 20):
 
 
 def conformal_quantile(y_cal, yhat_cal, u_cal, alpha: float = 0.1):
-    """Normalised split-conformal quantile and epsilon (protocol section 6)."""
+    """Original conformal-style interval rule (protocol section 6).
+
+    Epsilon is estimated on the calibration fold, rather than on independent fit
+    data. The quantile uses NumPy's "higher" convention at ceil((n+1)*(1-alpha))/n,
+    clipped at 1; this is not generally the usual ceil((n+1)*(1-alpha))-th order
+    statistic and does not return infinity for an unattainable rank. These legacy
+    choices are preserved to reproduce the reported empirical results. Ordinary
+    split-conformal coverage, and coverage after gate selection, are not claimed.
+    """
     eps = 0.1 * float(np.median(u_cal))
     scores = np.abs(np.asarray(y_cal) - np.asarray(yhat_cal)) / (np.asarray(u_cal) + eps)
     n = len(scores)

@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from analyse import HELD_OUT, LABEL
-from aoa import metrics
+from aoa.reporting import gate_reports
 
 ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "results"
@@ -17,6 +17,7 @@ TAB.mkdir(parents=True, exist_ok=True)
 G = pd.read_csv(RES / "summary_gates.csv")
 L = pd.read_csv(RES / "metrics_long.csv")
 S = pd.read_csv(RES / "summary_scores.csv")
+PER_SEED, POOLED = gate_reports(L, HELD_OUT)
 
 
 def meta(task):
@@ -67,30 +68,60 @@ def t2(model="RF"):
     (TAB / f"t2_accuracy_{model}.tex").write_text("\n".join(out))
 
 
+def pct(x):
+    return f"{100*x:.2f}\\%"
+
+
 def t3(model="RF", target=0.8):
-    """Operating-limits card: pooled precision over all accepted queries of all seeds, Wilson 95% CI."""
-    out = ["\\begin{tabular}{@{}lccccc@{}}", "\\toprule",
-           " & \\multicolumn{2}{c}{Calibrated on $C_r$} & \\multicolumn{3}{c}{Calibrated on $C_h$} \\\\",
-           "\\cmidrule(lr){2-3}\\cmidrule(lr){4-6}",
-           "Held-out test & Coverage & Precision [95\\% CI] & Coverage & Precision [95\\% CI] & Seeds accepting \\\\",
+    """Descriptive pooled card with counts; no independent-binomial intervals."""
+    out = ["\\begin{tabular}{@{}lcccccc@{}}", "\\toprule",
+           " & \\multicolumn{3}{c}{$C_r$ pipeline} & \\multicolumn{3}{c}{$C_h$ pipeline} \\\\",
+           "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}",
+           "Held-out test & Coverage & Precision (correct/accepted) & Seeds & Coverage & Precision (correct/accepted) & Seeds \\\\",
            "\\midrule"]
     for fam, task, test in HELD_OUT:
         cells = []
         for cal in ("C_r", "C_h"):
-            d = L[(L.task == task) & (L.model == model) & (L.cal == cal) & (L.test == test) &
-                  (L.gate == "LTT_fused") & (L.target == target)]
-            n = int(d.n_acc.sum())
-            k = int(round((d.precision.fillna(0) * d.n_acc).sum()))
-            cov = d.coverage.mean()
-            if n == 0:
-                cells.append((f"{cov:.2f}", "abstained", "0/5"))
-            else:
-                lo, hi = metrics.wilson(k, n)
-                cells.append((f"{cov:.2f}", f"{k/n:.2f} [{lo:.2f}, {hi:.2f}]", f"{int((d.n_acc > 0).sum())}/{len(d)}"))
-        (cr_cov, cr_p, _), (ch_cov, ch_p, ch_s) = cells
-        out.append(f"{LABEL[(task, test)]} & {cr_cov} & {cr_p} & {ch_cov} & {ch_p} & {ch_s} \\\\")
+            d = POOLED[(POOLED.task == task) & (POOLED.model == model) & (POOLED.cal == cal) &
+                       (POOLED.test == test) & (POOLED.target == target)].iloc[0]
+            precision = "abstained (0/0)" if d.n_acc == 0 else f"{d.pooled_precision:.2f} ({int(d.n_correct)}/{int(d.n_acc)})"
+            cells += [pct(d.coverage), precision, f"{int(d.seeds_accepting)}/{int(d.seeds)}"]
+        out.append(f"{LABEL[(task, test)]} & " + " & ".join(cells) + r" \\")
     out += ["\\bottomrule", "\\end{tabular}"]
     (TAB / f"t3_card_{model}_{int(target*10)}.tex").write_text("\n".join(out))
+
+
+def per_seed_table(model, target):
+    """Both pipelines in the same row; counts refer to prediction-seed observations."""
+    head = [r"Test / seed & \multicolumn{3}{c}{$C_r$ pipeline} & \multicolumn{3}{c}{$C_h$ pipeline} \\",
+            r" & Coverage & Correct/accepted & Precision & Coverage & Correct/accepted & Precision \\", r"\midrule"]
+    out = [r"\begin{longtable}{@{}lrrrrrr@{}}",
+           f"\\caption{{Per-seed Gate~B results, {model}, $t={target}$. Coverage is the percentage of test queries accepted. A dash denotes undefined precision when no query is accepted; counts are retained.}}\\\\",
+           r"\toprule", *head, r"\endfirsthead", r"\toprule", *head, r"\endhead",
+           r"\bottomrule", r"\endfoot"]
+    for fam, task, test in HELD_OUT:
+        d = PER_SEED[(PER_SEED.task == task) & (PER_SEED.test == test) &
+                     (PER_SEED.model == model) & (PER_SEED.target == target)]
+        for seed in sorted(d.seed.unique()):
+            cells = []
+            for cal in ("C_r", "C_h"):
+                row = d[(d.seed == seed) & (d.cal == cal)].iloc[0]
+                cells += [pct(row.coverage), f"{int(row.n_correct)}/{int(row.n_acc)}",
+                          "---" if row.n_acc == 0 else f"{row.precision:.3f}"]
+            out.append(f"{fam}: {LABEL[(task, test)]} / {seed} & " + " & ".join(cells) + r" \\")
+        out.append(r"\addlinespace")
+    out.append(r"\end{longtable}")
+    (TAB / f"t6_per_seed_{model}_{int(target*10)}.tex").write_text("\n".join(out))
+
+
+def revision_reports():
+    dest = RES / "revision"
+    dest.mkdir(exist_ok=True)
+    PER_SEED.to_csv(dest / "gate_per_seed.csv", index=False)
+    POOLED.to_csv(dest / "gate_pooled_descriptive.csv", index=False)
+    for model in ("RF", "MLP"):
+        for target in (0.8, 0.9):
+            per_seed_table(model, target)
 
 
 def t4():
@@ -123,5 +154,5 @@ def t5(model):
 
 
 if __name__ == "__main__":
-    t1(); t2("RF"); t2("MLP"); t3("RF", 0.8); t3("RF", 0.9); t3("MLP", 0.8); t4(); t5("RF"); t5("MLP")
+    revision_reports(); t1(); t2("RF"); t2("MLP"); t3("RF", 0.8); t3("RF", 0.9); t3("MLP", 0.8); t4(); t5("RF"); t5("MLP")
     print("tables written to", TAB)

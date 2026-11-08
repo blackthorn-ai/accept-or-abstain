@@ -43,6 +43,7 @@ def selective_rmse_curve(score, y, yhat):
 
 
 def wilson(k: int, n: int, z: float = 1.96):
+    """Independent-binomial helper; not for pooled repeated query-seed predictions."""
     if n == 0:
         return (float("nan"), float("nan"))
     p = k / n

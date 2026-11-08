@@ -1,0 +1,56 @@
+{
+  "revision_date": "2026-11-08",
+  "status": "unposted working revision",
+  "base_commit": "00e118892799a511d7d304869c556c9d2f875226",
+  "scope": "Full saved-prediction analysis replay; no base-model retraining or independent validation",
+  "baseline_files_checked": 150,
+  "baseline_mismatches": [],
+  "prediction_files": 70,
+  "per_seed_rows_checked_against_replayed_acceptance_masks": 320,
+  "pooled_descriptive_rows": 64,
+  "reporting_tests_passed": 5,
+  "hypotheses": {
+    "RF": {
+      "H1": false,
+      "H2": false,
+      "H3": false,
+      "H4": false
+    },
+    "MLP": {
+      "H1": true,
+      "H2": true,
+      "H3": false,
+      "H4": false
+    }
+  },
+  "uncertainty_change": "Pooled Wilson intervals withdrawn; no replacement population interval",
+  "original_h1_query_bootstrap": "Preserved; incomplete chemical-group and training uncertainty",
+  "pdfs": {
+    "paper/main.pdf": {
+      "pages": 17,
+      "sha256": "e7da1d0e673ecc0040195ff807dace3755101f1fb0a99bfa960f9d48e4ffe52b"
+    },
+    "paper/si.pdf": {
+      "pages": 10,
+      "sha256": "e5c6890cc734ce880ea956f1a3c6844d4b48f16e4e449e4628e133152981aec3"
+    }
+  },
+  "root_pdf_and_source_zip_synchronized": true,
+  "versions": {
+    "python": "3.12.14",
+    "numpy": "2.5.4",
+    "pandas": "3.1.0",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1",
+    "matplotlib": "3.11.2"
+  },
+  "commands": [
+    "python -m unittest discover -s tests -v",
+    "python scripts/analyse.py",
+    "python scripts/make_figures.py --ga",
+    "python scripts/make_tables.py",
+    "python scripts/exploratory.py",
+    "python scripts/build_paper.py",
+    "python scripts/verify_revision.py"
+  ]
+}

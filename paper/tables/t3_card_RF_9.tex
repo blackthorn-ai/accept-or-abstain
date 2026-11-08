@@ -1,16 +1,16 @@
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular}{@{}lcccccc@{}}
 \toprule
- & \multicolumn{2}{c}{Calibrated on $C_r$} & \multicolumn{3}{c}{Calibrated on $C_h$} \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-6}
-Held-out test & Coverage & Precision [95\% CI] & Coverage & Precision [95\% CI] & Seeds accepting \\
+ & \multicolumn{3}{c}{$C_r$ pipeline} & \multicolumn{3}{c}{$C_h$ pipeline} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Held-out test & Coverage & Precision (correct/accepted) & Seeds & Coverage & Precision (correct/accepted) & Seeds \\
 \midrule
-LogP cluster & 0.01 & 0.91 [0.84, 0.95] & 0.00 & 0.92 [0.83, 0.97] & 1/5 \\
-LogP prospective (E1) & 0.01 & 0.92 [0.67, 0.99] & 0.01 & 1.00 [0.72, 1.00] & 1/5 \\
-LogP fluorinated (E2) & 0.00 & abstained & 0.00 & 1.00 [0.34, 1.00] & 1/5 \\
-BH Test1 & 0.45 & 0.91 [0.89, 0.92] & 0.18 & 0.94 [0.93, 0.96] & 3/5 \\
-BH Test2 & 0.61 & 0.87 [0.86, 0.88] & 0.22 & 0.95 [0.94, 0.96] & 4/5 \\
-BH Test3 & 0.34 & 0.85 [0.83, 0.87] & 0.10 & 0.95 [0.92, 0.96] & 3/5 \\
-BH Test4 & 0.70 & 0.65 [0.63, 0.66] & 0.19 & 0.72 [0.69, 0.75] & 2/5 \\
-SM ligand & 0.27 & 0.88 [0.86, 0.90] & 0.04 & 0.90 [0.85, 0.93] & 1/5 \\
+LogP cluster & 0.51\% & 0.91 (83/91) & 2/5 & 0.36\% & 0.92 (59/64) & 1/5 \\
+LogP prospective (E1) & 0.80\% & 0.92 (12/13) & 2/5 & 0.61\% & 1.00 (10/10) & 1/5 \\
+LogP fluorinated (E2) & 0.00\% & abstained (0/0) & 0/5 & 0.22\% & 1.00 (2/2) & 1/5 \\
+BH Test1 & 45.14\% & 0.91 (1839/2027) & 5/5 & 18.02\% & 0.94 (764/809) & 3/5 \\
+BH Test2 & 61.04\% & 0.87 (2388/2747) & 5/5 & 22.00\% & 0.95 (944/990) & 4/5 \\
+BH Test3 & 34.02\% & 0.85 (1300/1526) & 4/5 & 10.26\% & 0.95 (436/460) & 3/5 \\
+BH Test4 & 70.49\% & 0.65 (2057/3172) & 5/5 & 19.22\% & 0.72 (627/865) & 2/5 \\
+SM ligand & 26.94\% & 0.88 (1136/1293) & 5/5 & 4.40\% & 0.90 (190/211) & 1/5 \\
 \bottomrule
 \end{tabular}

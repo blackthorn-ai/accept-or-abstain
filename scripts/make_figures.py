@@ -52,7 +52,7 @@ def fig_protocol():
         ("P1", "Context of use;\ncorrect if\n|error| \u2264 \u03c4"),
         ("P2", "Split by\nchemistry:\n$F$, $C_h$, $H$"),
         ("P3", "Fit model on $F$;\nsignals\n$s_1$, $s_5$, $u$"),
-        ("P4", "Calibrate gate\non $C_h$\n(LTT, target $t$)"),
+        ("P4", "Calibrate gate\non $C_h$\n(empirical, target $t$)"),
         ("P5", "Stress-test on\nfurther\nheld-out sets"),
         ("P6", "Publish the\noperating-\nlimits card"),
     ]
@@ -75,8 +75,8 @@ def fig_protocol():
             if i < len(steps) - 1:
                 ax.add_patch(FancyArrowPatch((x + w + 0.35, y0 + h / 2), (x + w + gap - 0.35, y0 + h / 2),
                                              arrowstyle="-|>", mutation_scale=8, lw=1.0, color="#4a5a70"))
-        foot = ax.text(50, 2.2, "Each query is accepted, with a prediction, or declined; the precision "
-                       "target holds for queries exchangeable with $C_h$.",
+        foot = ax.text(50, 2.2, "Accept or decline each query; achieved precision and coverage are empirical, "
+                       "with no established guarantee.",
                        ha="center", fontsize=7.0, style="italic", color="#333")
         fig.canvas.draw()
         r = fig.canvas.get_renderer()
@@ -172,7 +172,7 @@ def fig_calibration():
                     continue
                 xs.append(i + (-0.15 if cal == "C_r" else 0.15)); ys.append(r.precision.iloc[0]); cv.append(r.coverage.iloc[0])
             ax.scatter(xs, ys, s=[18 + 80 * c for c in cv], color=C[cal], alpha=0.85, edgecolor="white", lw=0.5,
-                       label="Calibrated on random fold C_r" if cal == "C_r" else "Calibrated on held-out fold C_h", zorder=3)
+                       label="Scorer + threshold on random C_r" if cal == "C_r" else "Scorer + threshold on held-out C_h", zorder=3)
         ax.axhline(t, color="k", lw=0.8); ax.axhspan(t - 0.05, t, color="#e5e5e5", zorder=0)
         ax.set_xticks(range(len(HELD_OUT)), [LABEL[(tk, te)].replace(" (", "\n(").replace("LogP ", "LogP\n") for _, tk, te in HELD_OUT],
                       rotation=60, ha="right", fontsize=6.8)
@@ -291,8 +291,8 @@ def fig_graphical_abstract():
     ink, grey = "#1f2a36", "#5f6b78"
     fig = plt.figure(figsize=(7.0, 3.5))
     A = fig.add_axes([0, 0, 1, 1]); A.set_xlim(0, 100); A.set_ylim(0, 50); A.axis("off")
-    fig.text(0.5, 0.925, "Calibrate abstention on held-out chemistry", ha="center", va="center",
-             fontsize=15.5, weight="bold", color=ink)
+    fig.text(0.5, 0.925, "Compare abstention pipelines on held-out chemistry", ha="center", va="center",
+             fontsize=12.0, weight="bold", color=ink)
 
     # ---- left: query -> gate -> prediction / abstain
     ax_m = fig.add_axes([0.0, 0.39, 0.175, 0.35]); ax_m.imshow(_molecule_png("c1ccc(-c2ccno2)cc1")); ax_m.axis("off")
@@ -307,7 +307,7 @@ def fig_graphical_abstract():
     A.text(36.6, 35.6, "\u2713 predict", ha="left", va="center", fontsize=12, color=ink)
     A.text(36.6, 21.4, "\u2717 abstain", ha="left", va="center", fontsize=12, color=ink)
     # ---- calibration choice doubles as the chart legend
-    A.text(2.0, 12.2, "Threshold calibrated on", ha="left", va="center", fontsize=10.5, color=grey)
+    A.text(2.0, 12.2, "Scorer + threshold fitted on", ha="left", va="center", fontsize=10.5, color=grey)
     A.add_patch(FancyArrowPatch((26.5, 14.4), (26.5, 21.6), arrowstyle="-|>", mutation_scale=11, lw=1.3,
                                 color=grey, linestyle=(0, (3, 2))))
     for y, cal, lab in [(7.0, "C_r", "a random fold"), (2.6, "C_h", "held-out chemistry")]:
@@ -333,7 +333,7 @@ def fig_graphical_abstract():
     ax.set_yticks([0.6, 0.7, 0.8, 0.9]); ax.tick_params(labelsize=11, colors=ink)
     ax.set_xticks(x, ["1", "2", "3", "4"])
     ax.set_xlabel("Buchwald\u2013Hartwig test (unseen additives)", fontsize=11, color=ink)
-    ax.set_ylabel("precision of\naccepted predictions", fontsize=11, color=ink, linespacing=1.1)
+    ax.set_ylabel("pooled descriptive precision", fontsize=11, color=ink, linespacing=1.1)
     ax.text(-0.28, 0.915, "% = reactions accepted", ha="left", va="center", fontsize=10, color=grey)
     for s in ("left", "bottom"):
         ax.spines[s].set_color(ink)
