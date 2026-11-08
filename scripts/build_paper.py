@@ -14,6 +14,21 @@ ROOT = Path(__file__).resolve().parents[1]
 PAPER = ROOT / "paper"
 
 
+def package_paths(root: Path) -> dict[str, Path]:
+    """Required manuscript files plus figure/table assets, keyed by archive name."""
+    paper = root / "paper"
+    required = [paper / name for name in
+                ("main.tex", "si.tex", "references.bib", "main.pdf", "si.pdf")]
+    required.append(root / "REVISION_NOTES.md")
+    for path in required:
+        if not path.is_file():
+            raise FileNotFoundError(f"Required source-package member is missing: {path}")
+    paths = [*required, *paper.glob("*.tex"), *paper.glob("*.bib"),
+             *paper.glob("figures/*.pdf"), *paper.glob("figures/*.png"),
+             *paper.glob("tables/*.tex")]
+    return {str(path.relative_to(root)): path for path in sorted(set(paths))}
+
+
 def main():
     logs = []
     for args in [
@@ -30,14 +45,9 @@ def main():
         if run.returncode:
             raise RuntimeError(f"{args[0]} failed; see paper/build.log")
     shutil.copyfile(PAPER / "main.pdf", ROOT / "main.pdf")
-    paths = [*PAPER.glob("*.tex"), *PAPER.glob("*.bib"),
-             PAPER / "main.pdf", PAPER / "si.pdf",
-             *PAPER.glob("figures/*.pdf"), *PAPER.glob("figures/*.png"),
-             *PAPER.glob("tables/*.tex")]
     with ZipFile(ROOT / "paper.zip", "w", ZIP_DEFLATED) as package:
-        for path in sorted(paths):
-            package.write(path, path.relative_to(ROOT))
-        package.write(ROOT / "REVISION_NOTES.md", "REVISION_NOTES.md")
+        for name, path in package_paths(ROOT).items():
+            package.write(path, name)
     print("Built paper/main.pdf, paper/si.pdf; synchronized main.pdf and paper.zip")
 
 

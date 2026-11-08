@@ -55,6 +55,30 @@ class ReportingTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.report(pd.concat([d, d[d.gate == "LTT_fused"]]))
 
+    def test_fractional_counts_are_not_truncated(self):
+        for column in ("n", "n_acc"):
+            with self.subTest(column=column):
+                d = example()
+                first_gate = (d.gate == "LTT_fused") & (d.seed == 0)
+                if column == "n":
+                    d.loc[(d.gate == "none") & (d.seed == 0), "n"] = 1000.5
+                    d.loc[first_gate, "coverage"] = 1 / 1000.5
+                else:
+                    d["n_acc"] = d.n_acc.astype(float)
+                    d.loc[first_gate, "n_acc"] = 1.5
+                    d.loc[first_gate, "precision"] = 2 / 3
+                    d.loc[first_gate, "coverage"] = 1.5 / 1000
+                with self.assertRaisesRegex(ValueError, "finite integers"):
+                    self.report(d)
+
+    def test_nonfinite_counts_are_rejected(self):
+        d = example()
+        first_gate = (d.gate == "LTT_fused") & (d.seed == 0)
+        d.loc[(d.gate == "none") & (d.seed == 0), "n"] = np.inf
+        d.loc[first_gate, "coverage"] = 0
+        with self.assertRaisesRegex(ValueError, "finite integers"):
+            self.report(d)
+
 
 if __name__ == "__main__":
     unittest.main()

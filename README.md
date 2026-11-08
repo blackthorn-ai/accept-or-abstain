@@ -16,7 +16,7 @@ selective-precision guarantee is established for this implementation. The hypoth
 
 ## Result in one paragraph
 
-On seven of eight held-out tests, ranking queries by the gate's score lowered the
+For the primary random forest, on seven of eight held-out tests, ranking queries by the gate's score lowered the
 error rate at 30% coverage by 0.16–0.35. At a target precision of 0.8, the complete random-fold and held-out-fold
 pipelines differed most for reaction yields. Switching folds refits the fused
 scorer and changes threshold data and their sizes; it does not isolate threshold
@@ -25,8 +25,8 @@ additives, at a precision of 0.59–0.75. Held-out-fold gates reached a pooled
 precision of 0.85–0.87 on three of the four tests, at 29–62% coverage. At a target of
 0.9 the difference was smaller. For the random forest, fusing similarity with spread
 added nothing to spread alone, and conformal intervals calibrated on a random fold
-lost coverage under shift. **All four pre-specified hypotheses failed their
-criteria.** In an exploratory analysis, intervals calibrated on the held-out fold
+lost coverage under shift. **All four pre-specified hypotheses failed their complete
+criteria for the primary model.** In an exploratory analysis, intervals calibrated on the held-out fold
 increased empirical coverage, at the cost of width; no coverage guarantee under
 shift or after gate selection is established. See [`results/hypotheses.md`](results/hypotheses.md),
 `results/exploratory_RF.json` and protocol note 1.2 in [`PROTOCOL.md`](PROTOCOL.md).
@@ -43,8 +43,9 @@ for both pipelines. Repeated predictions are correlated; pooled Wilson intervals
 have been removed. [Per-seed results](results/revision/gate_per_seed.csv) and
 [descriptive pooled summaries](results/revision/gate_pooled_descriptive.csv) are
 provided by dataset/test family. No new-group or new-campaign precision interval
-is claimed. The original H1 query bootstrap does not fully address chemical-group
-or training-set dependence. E1/E2 share 182 compounds, and BH tests share a campaign;
+is claimed. The original H1 query bootstrap does not fully preserve dependence from partly
+overlapping seed-specific query sets or chemical groups, and omits training-set
+uncertainty. Its criterion is retained as a historical computational result. E1/E2 share 182 compounds, and BH tests share a campaign;
 the eight tests are not eight independent replications.
 
 The interval implementation retains its calibration-derived normalizer and original
@@ -61,17 +62,21 @@ uv sync --frozen --python 3.12
 .venv/bin/python scripts/fetch_data.py        # public data, SHA-256 checked
 .venv/bin/python scripts/run_predictions.py   # base models, per-query predictions
 .venv/bin/python scripts/analyse.py           # gates, metrics, hypotheses
-.venv/bin/python scripts/make_figures.py
+.venv/bin/python scripts/make_figures.py --ga
 .venv/bin/python scripts/make_tables.py
 .venv/bin/python scripts/exploratory.py      # exploratory analyses (not in the plan)
 .venv/bin/python scripts/make_si_plan.py     # SI copy of the plan (needs pandoc)
 python3 scripts/build_paper.py
+.venv/bin/python scripts/verify_revision.py --require-build-logs
 ```
 
 To replay the saved predictions, start at `scripts/analyse.py`; no base-model
 retraining or data download is required. Then run the figure, table and exploratory
 scripts and build the PDFs. The build requires TeX (pdflatex, bibtex and xelatex);
-regenerating the unchanged historical plan additionally requires pandoc.
+regenerating the unchanged historical plan additionally requires pandoc. Verification
+also needs Poppler's `pdftotext` and `pdfinfo`. To verify committed PDFs in a clean
+checkout after replaying the predictions, use `scripts/verify_revision.py` without
+`--require-build-logs`; the flag additionally requires logs from a local TeX build.
 
 The full run takes about 40 minutes on an 18-core laptop, most of it the MLP ensembles.
 

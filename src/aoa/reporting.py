@@ -21,6 +21,9 @@ def gate_reports(long: pd.DataFrame, held_out: list) -> tuple[pd.DataFrame, pd.D
         raise ValueError("Gate rows need corresponding nonempty ungated test counts")
     if d.duplicated(keys + ["target"]).any():
         raise ValueError("Duplicate seed/calibration/target gate rows")
+    counts = d[["n_test", "n_acc"]].to_numpy(dtype=float)
+    if not np.isfinite(counts).all() or not np.equal(counts, np.floor(counts)).all():
+        raise ValueError("Accepted/test counts must be finite integers")
     if ((d.n_test <= 0) | (d.n_acc < 0) | (d.n_acc > d.n_test)).any():
         raise ValueError("Invalid accepted/test counts")
     if not np.allclose(d.coverage, d.n_acc / d.n_test, rtol=0, atol=1e-12):

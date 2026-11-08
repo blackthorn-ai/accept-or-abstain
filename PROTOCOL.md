@@ -206,3 +206,14 @@ retained as history. This note does not retroactively prespecify a new analysis.
 - The manuscript, SI, README, figures, source package and AI-use disclosure are
   synchronized. This is an unposted working revision, not a posted version 2.
 See `REVISION_NOTES.md` and `results/revision/verification.json` for verification.
+
+
+**1.4, 8 November 2026, PR #1 review; no change to the experiment.** The manuscript
+now distinguishes E2 seed-averaged precision (0.67) from descriptive pooled precision
+(24/34, 0.71). It explicitly identifies incomplete query pairing in the original H1
+bootstrap for partly overlapping seed-specific logP-H and SM-H sets. The original
+H1 calculation and pass criteria are retained as history. Verification is extended
+to fresh prediction replay, every report value, integer counts and complete ZIP
+membership. A tie-block error in the unused `empirical_threshold` helper is fixed;
+the reported LTT-labelled and conjunctive pipelines do not call that helper. No
+original numerical output or hypothesis decision changes. See `PR_REVIEW.md`.

@@ -81,13 +81,21 @@ def ltt_threshold(score_cal, correct_cal, target: float, delta: float = 0.1) -> 
 
 
 def empirical_threshold(score_cal, correct_cal, target: float) -> float:
-    """Loosest threshold whose empirical calibration precision is >= target (no guarantee)."""
+    """Loosest score cutoff with empirical precision >= target, including all ties.
+
+    This helper is not used by the reported LTT-labelled or conjunctive gates.
+    It gives no guarantee beyond the observed calibration precision.
+    """
     s = np.asarray(score_cal, dtype=float)
     c = np.asarray(correct_cal).astype(int)
     order = np.argsort(-s, kind="stable")
-    prec = np.cumsum(c[order]) / np.arange(1, len(s) + 1)
+    if len(s) == 0:
+        return np.inf
+    # A cutoff accepts a whole tie block; a prefix within a tie is not deployable.
+    ends = np.r_[np.flatnonzero(np.diff(s[order]) != 0), len(s) - 1]
+    prec = np.cumsum(c[order])[ends] / (ends + 1)
     ok = np.flatnonzero(prec >= target)
-    return np.inf if len(ok) == 0 else s[order][ok.max()]
+    return np.inf if len(ok) == 0 else s[order][ends[ok.max()]]
 
 
 def conjunctive_gate(s1_cal, u_cal, correct_cal, target: float, grid: int = 20):
