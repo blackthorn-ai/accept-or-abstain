@@ -14,44 +14,46 @@
 \renewcommand{\thesection}{S\arabic{section}}
 \providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setlength{\parskip}{0.35em}
+\setlength{\emergencystretch}{3em}
 
 \begin{document}
 \begin{center}
 {\Large\bfseries Supporting Information}\\[0.6em]
 {\large Accept or abstain? A pre-specified test of reliability gates calibrated on held-out chemistry for molecular property and reaction-yield models}\\[0.6em]
 Oleksandr Gurbych\\
-{\small Blackthorn AI Ltd., London, United Kingdom}
+{\small Blackthorn AI Ltd., London, United Kingdom}\\
+{\small Working revision: 8 November 2026 (not posted)}
 \end{center}
 
-\noindent Contents: Section S1, results of the MLP ensemble (M2), Tables S1--S3. Section S2, operating-limits card of the random forest (M1) at $t = 0.9$ (pooled precision with Wilson 95\% intervals), Table S4. Section S3, the analysis plan. Section S4, software environment. Table numbers in the main text refer to the main manuscript.
+\noindent Contents: Section S1, results of the MLP ensemble (M2), Tables S1--S3. Section S2, operating-limits card of the random forest (M1) at $t = 0.9$ (descriptive pooled precision with correct/accepted counts), Table S4. Section S3, the analysis plan. Section S4, software environment. Section S5, per-seed results for both calibration pipelines and both targets (Tables S5--S8). Table numbers in the main text refer to the main manuscript.
 
 \section{Results of the MLP ensemble (M2)}
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Ungated accuracy of M2 (mean $\pm$ s.d. over five seeds). Error rate: share of predictions with an absolute error above 0.5 log units (logP) or 10 percentage points (yield).}
 \small
 \input{tables/t2_accuracy_MLP.tex}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{AURC of the selective error rate for M2 (lower is better; mean over seeds). ``No gate'' is the ungated error rate.}
 \small
 \input{tables/t5_aurc_MLP.tex}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
-\caption{Operating-limits card for Gate~B with M2 at $t = 0.8$. Pooled precision with Wilson 95\% intervals; other definitions as in Table~4 of the main text. The $C_h$-calibrated gate abstained on every query in every seed.}
+\caption{Operating-limits card for Gate~B with M2 at $t = 0.8$. Descriptive pooled precision with correct/accepted counts and accepting seeds for both pipelines; other definitions as in Table~4 of the main text. No independent-binomial interval is reported. The $C_h$-calibrated gate abstained on every query in every seed.}
 \small
 \resizebox{\linewidth}{!}{\input{tables/t3_card_MLP_8.tex}}
 \end{table}
 
 \clearpage
-\section{Operating-limits card of M1 at $t = 0.9$}
+\section{Operating-limits card of M1 at \texorpdfstring{$t = 0.9$}{t = 0.9}}
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Operating-limits card for Gate~B with M1 at $t = 0.9$. Definitions as in Table~4 of the main text.}
 \small
@@ -60,14 +62,32 @@ Oleksandr Gurbych\\
 
 \section{Analysis plan}
 
-The plan below was written before the evaluation and is reproduced in its original wording. Notes on its implementation follow at the end.
+The plan below is a historical record reproduced in its original wording, not a revised claim of statistical validity. Protocol 1.0 was committed at \texttt{f187a12}; note 1.1 at \texttt{0269f67}; pre-scoring analysis code at \texttt{feadf9a}. The timing rests on local repository history from the same working session, not an external registration. Later documentation and bootstrap corrections are recorded in note 1.2 of \texttt{PROTOCOL.md}. Notes on implementation follow the historical plan.
 
-\begingroup\small
+For the 8 November revision, statements in the original plan about a threshold guarantee are superseded by the empirical interpretation in the main manuscript. Candidates and their order use calibration data, and no finite-sample guarantee is established. The original conformal-style normalizer uses the calibration fold, its quantile convention is retained, and neither marginal coverage for this implementation nor accepted-subset coverage under shift is established. The random/held-out Gate~B comparison refits the scorer and changes threshold data and sample size. The hypotheses, pass criteria and original calculations are retained.
+
+The cards are descriptive summaries of accepted prediction--seed observations. A compound or reaction may repeat across seeds and related chemistry shares groups; the original pooled Wilson intervals were removed. Tables S5--S8 give per-seed precision, correct/accepted counts and coverage. No replacement interval or inference to unseen chemical groups/campaigns is claimed. The original H1 query-bootstrap intervals describe the retained analysis conditional on fitted pipelines, with incomplete chemical-group dependence. In logP $H$ and SM $H$, partly overlapping query sets are resampled independently across seeds, so repeated-query dependence is not fully preserved. Statistical review of the target population and paired/clustered sampling design is needed before a new inferential analysis. E1 and E2 share 182 compounds; BH tests share a campaign. The eight tests are not independent replications.
+
+\begingroup\small\raggedright
 \input{tables/protocol_si.tex}
 \endgroup
 
 \section{Software environment}
 
-Python 3.12.14; RDKit 2026.09.1; scikit-learn 1.9.1; NumPy 2.5.4; SciPy 1.18.1; pandas 3.1.0; matplotlib 3.11.2. The full pipeline (\texttt{fetch\_data.py}, \texttt{run\_predictions.py}, \texttt{analyse.py}, \texttt{make\_figures.py}, \texttt{make\_tables.py}) runs in about 40 minutes on an 18-core laptop CPU. Input digests (SHA-256) are listed in \texttt{PROVENANCE.md} and checked by \texttt{fetch\_data.py}.
+Python 3.12.14; RDKit 2026.09.1; scikit-learn 1.9.1; NumPy 2.5.4; SciPy 1.18.1; pandas 3.1.0; matplotlib 3.11.2. The locked dependencies are installed with \texttt{uv sync --frozen --python 3.12}. The full pipeline (\texttt{fetch\_data.py}, \texttt{run\_predictions.py}, \texttt{analyse.py}, \texttt{make\_figures.py}, \texttt{make\_tables.py}) runs in about 40 minutes on an 18-core laptop CPU. Input digests (SHA-256) are listed in \texttt{PROVENANCE.md} and checked by \texttt{fetch\_data.py}.
+
+\clearpage
+\section{Per-seed descriptive operating results}
+These tables extend the descriptive reporting in this revision; they do not change the pre-specified hypothesis criteria. Coverage includes zero-acceptance seeds. Undefined precision is not replaced by zero or one. Counts are correct/accepted predictions within each seed; repeated queries across seeds remain paired observations, not independent trials. The machine-readable files \texttt{results/revision/gate\_per\_seed.csv} and \texttt{gate\_pooled\_descriptive.csv} also give test counts and family labels. H2 retains its original convention that an all-abstaining cell meets the target vacuously.
+
+\begingroup\scriptsize
+\input{tables/t6_per_seed_RF_8.tex}
+\clearpage
+\input{tables/t6_per_seed_RF_9.tex}
+\clearpage
+\input{tables/t6_per_seed_MLP_8.tex}
+\clearpage
+\input{tables/t6_per_seed_MLP_9.tex}
+\endgroup
 
 \end{document}

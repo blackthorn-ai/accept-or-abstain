@@ -1,0 +1,61 @@
+{
+  "revision_date": "2026-11-08",
+  "status": "unposted working revision",
+  "base_commit": "00e118892799a511d7d304869c556c9d2f875226",
+  "scope": "Fresh saved-prediction metric replay; no base-model retraining or independent validation",
+  "baseline_files_checked": 150,
+  "baseline_mismatches": [],
+  "prediction_files": 70,
+  "gate_metric_rows_replayed": 3600,
+  "per_seed_rows_checked_against_replayed_acceptance_masks": 320,
+  "per_seed_and_pooled_values_recomputed": true,
+  "pooled_descriptive_rows": 64,
+  "reporting_tests_passed": 17,
+  "hypotheses": {
+    "RF": {
+      "H1": false,
+      "H2": false,
+      "H3": false,
+      "H4": false
+    },
+    "MLP": {
+      "H1": true,
+      "H2": true,
+      "H3": false,
+      "H4": false
+    }
+  },
+  "uncertainty_change": "Pooled Wilson intervals withdrawn; no replacement population interval",
+  "original_h1_query_bootstrap": "Preserved; incomplete partial-overlap, chemical-group and training uncertainty",
+  "pdfs": {
+    "paper/main.pdf": {
+      "pages": 17,
+      "sha256": "5b453a2849836d64a35b8f7fcb63a1d2b7d0b437d5cac3a511d6c6450521e47a",
+      "build_log_checked": true
+    },
+    "paper/si.pdf": {
+      "pages": 10,
+      "sha256": "971e36ae8a63ad1324c6feb4e6bced0ac6937ce3731232b703bf9981a39ec595",
+      "build_log_checked": true
+    }
+  },
+  "root_pdf_and_source_zip_synchronized": true,
+  "source_zip_membership_checked": true,
+  "versions": {
+    "python": "3.12.14",
+    "numpy": "2.5.4",
+    "pandas": "3.1.0",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1",
+    "matplotlib": "3.11.2"
+  },
+  "commands": [
+    "python -m unittest discover -s tests -v",
+    "python scripts/analyse.py",
+    "python scripts/make_figures.py --ga",
+    "python scripts/make_tables.py",
+    "python scripts/exploratory.py",
+    "python scripts/build_paper.py",
+    "python scripts/verify_revision.py --require-build-logs"
+  ]
+}
