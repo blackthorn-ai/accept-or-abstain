@@ -31,7 +31,17 @@ increased empirical coverage, at the cost of width; no coverage guarantee under
 shift or after gate selection is established. See [`results/hypotheses.md`](results/hypotheses.md),
 `results/exploratory_RF.json` and protocol note 1.2 in [`PROTOCOL.md`](PROTOCOL.md).
 
-## This revision (8 November 2026)
+**Graph network (protocol amendment 2.0, 12 November 2026).** A third learner, an ensemble of
+five Chemprop D-MPNNs (M3), was added by an amendment committed before any M3 prediction was
+computed. It was the most accurate learner on every logP test (held-out-cluster RMSE 0.72,
+against 0.90 for the random forest) and the least accurate on every reaction test. As with the
+random forest, ensemble spread ranked errors better than similarity on seven of the eight
+held-out tests (the MLP's similarity advantage on logP did not carry over), fusion improved on
+the better signal by at most 4.3%, and all four hypotheses failed again. See
+[`results/amendment2/hypotheses.md`](results/amendment2/hypotheses.md) and amendment 2.0 in
+[`PROTOCOL.md`](PROTOCOL.md).
+
+## This revision (8 November 2026; graph network added 12 November 2026)
 
 This branch contains an **unposted working revision**. The DOI below identifies the
 posted version 1. The original posted PDF, original protocol, raw saved predictions

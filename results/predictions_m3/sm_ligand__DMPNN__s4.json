@@ -1,0 +1,89 @@
+{
+ "test_ligands": [
+  "CataCXium A",
+  "AmPhos"
+ ],
+ "cal_ligands": [
+  "XPhos",
+  "None"
+ ],
+ "n_fit": 2688,
+ "n_C_r": 576,
+ "n_C_h": 960,
+ "n_R": 576,
+ "n_H": 960,
+ "seconds": 987.7,
+ "graph": {
+  "job": "sm_ligand__s4.csv.gz",
+  "n_fit": 2688,
+  "n_predicted": 3072,
+  "n_members_used": 5,
+  "members": [
+   {
+    "member": 0,
+    "seed": 400,
+    "n_train": 2419,
+    "n_val": 269,
+    "best_val_loss": 0.3863638937473297,
+    "best_epoch": 43,
+    "epochs_run": 50,
+    "finite": true,
+    "seconds": 197.7
+   },
+   {
+    "member": 1,
+    "seed": 401,
+    "n_train": 2419,
+    "n_val": 269,
+    "best_val_loss": 0.38563743233680725,
+    "best_epoch": 49,
+    "epochs_run": 50,
+    "finite": true,
+    "seconds": 212.6
+   },
+   {
+    "member": 2,
+    "seed": 402,
+    "n_train": 2419,
+    "n_val": 269,
+    "best_val_loss": 0.4025699198246002,
+    "best_epoch": 45,
+    "epochs_run": 50,
+    "finite": true,
+    "seconds": 198.1
+   },
+   {
+    "member": 3,
+    "seed": 403,
+    "n_train": 2419,
+    "n_val": 269,
+    "best_val_loss": 0.389222115278244,
+    "best_epoch": 47,
+    "epochs_run": 50,
+    "finite": true,
+    "seconds": 194.1
+   },
+   {
+    "member": 4,
+    "seed": 404,
+    "n_train": 2419,
+    "n_val": 269,
+    "best_val_loss": 0.3604980409145355,
+    "best_epoch": 49,
+    "epochs_run": 50,
+    "finite": true,
+    "seconds": 185.1
+   }
+  ],
+  "seconds": 987.7,
+  "threads": 3,
+  "versions": {
+   "chemprop": "2.3.1",
+   "torch": "2.15.0",
+   "lightning": "2.6.6",
+   "rdkit": "2026.03.6",
+   "numpy": "2.5.4",
+   "pandas": "3.1.1"
+  }
+ }
+}

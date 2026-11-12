@@ -108,3 +108,23 @@ can verify committed PDFs after prediction replay without TeX logs; use
 No ChemRxiv submission, new DOI assignment, petition exhibit replacement, CV or
 ORCID change is part of this revision. Those references should change only after a
 revision is actually posted and its platform-assigned DOI/version/date are known.
+
+## Graph network added — 12 November 2026
+
+Protocol amendment 2.0 adds a third learner, M3: an ensemble of five Chemprop D-MPNNs
+(Chemprop 2.3.1, default settings, not tuned), trained on F only and judged by H1–H4 with
+unchanged criteria. The amendment (`6a08231`) and the code (`cdffad1`, `7b71e2c`) were
+committed before any M3 prediction was computed; note 2.1 records the run. Version 1's
+verdicts, files and numbers are unchanged; M3's results are in `results/predictions_m3/`
+and `results/amendment2/`, and `scripts/verify_revision.py` replays both.
+
+- Outcome: H1–H4 all fail for M3 (H1 holds on seven of eight tests, failing on SM ligand).
+  M3 is the most accurate learner on logP and the least accurate on yields. Spread ranks
+  errors better than similarity on seven of eight tests; fusion gains at most 4.3%.
+- Manuscript: a methods paragraph, a results section with Figure 7 (AURC of each signal
+  by learner), M3 in Table 5, contribution 4, the abstract, limitations and conclusions;
+  SI Section S6 (Tables S11–S14) and per-seed Tables S9–S10; the SI plan carries amendment 2.0.
+- Acknowledgement: rewritten to state that Claude (Anthropic) wrote the analysis code and
+  the first draft of the manuscript under the author's direction, and the graph-network
+  extension of this revision; Codex's assistance with the 8 November revision is kept.
+

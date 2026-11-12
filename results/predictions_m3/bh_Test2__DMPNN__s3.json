@@ -1,0 +1,94 @@
+{
+ "cal_additives": [
+  "CC1=NOC(C2=CC=CC=C2)=C1",
+  "CCOC(C1=NOC=C1)=O",
+  "C1(N(CC2=CC=CC=C2)CC3=CC=CC=C3)=CC=NO1",
+  "O=C(OC)C1=NOC(C2=CC=CS2)=C1"
+ ],
+ "test_additives": [
+  "CC1=CC(C(OCC)=O)=NO1",
+  "CC1=CC(C)=NO1",
+  "CC1=CC=NO1",
+  "O=C(OC)C1=CC=NO1",
+  "O=C(OC)C1=NOC(C2=CC=CO2)=C1"
+ ],
+ "n_fit": 1634,
+ "n_C_r": 350,
+ "n_C_h": 720,
+ "n_R": 351,
+ "n_H": 900,
+ "seconds": 576.2,
+ "graph": {
+  "job": "bh_Test2__s3.csv.gz",
+  "n_fit": 1634,
+  "n_predicted": 2321,
+  "n_members_used": 5,
+  "members": [
+   {
+    "member": 0,
+    "seed": 300,
+    "n_train": 1471,
+    "n_val": 163,
+    "best_val_loss": 0.19232170283794403,
+    "best_epoch": 49,
+    "epochs_run": 50,
+    "finite": true,
+    "seconds": 115.1
+   },
+   {
+    "member": 1,
+    "seed": 301,
+    "n_train": 1471,
+    "n_val": 163,
+    "best_val_loss": 0.2668636441230774,
+    "best_epoch": 41,
+    "epochs_run": 50,
+    "finite": true,
+    "seconds": 113.0
+   },
+   {
+    "member": 2,
+    "seed": 302,
+    "n_train": 1471,
+    "n_val": 163,
+    "best_val_loss": 0.20282036066055298,
+    "best_epoch": 45,
+    "epochs_run": 50,
+    "finite": true,
+    "seconds": 114.1
+   },
+   {
+    "member": 3,
+    "seed": 303,
+    "n_train": 1471,
+    "n_val": 163,
+    "best_val_loss": 0.2195296734571457,
+    "best_epoch": 44,
+    "epochs_run": 50,
+    "finite": true,
+    "seconds": 111.4
+   },
+   {
+    "member": 4,
+    "seed": 304,
+    "n_train": 1471,
+    "n_val": 163,
+    "best_val_loss": 0.1967102736234665,
+    "best_epoch": 47,
+    "epochs_run": 50,
+    "finite": true,
+    "seconds": 122.7
+   }
+  ],
+  "seconds": 576.2,
+  "threads": 3,
+  "versions": {
+   "chemprop": "2.3.1",
+   "torch": "2.15.0",
+   "lightning": "2.6.6",
+   "rdkit": "2026.03.6",
+   "numpy": "2.5.4",
+   "pandas": "3.1.1"
+  }
+ }
+}

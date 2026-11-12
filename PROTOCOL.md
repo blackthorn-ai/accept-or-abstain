@@ -274,3 +274,17 @@ D-MPNN members for two epochs on 1,000 fit-set rows from three job files (D1, D3
 and D3b, seed 0), and a smoke test trained a five-member ensemble on 300 fit-set rows of
 the D3a Test1 job (seed 0) and predicted 50 further fit-set rows, twice, with identical
 results. Neither computed a prediction on any calibration, test or external set.
+
+**2.1, 12 November 2026, after M3 was scored: documentation only.** Nothing in amendment
+2.0 changes.
+- *Training.* All 35 task-seed fits completed; every one of the 175 members gave finite
+  predictions, so the retry rule was not used. 103 members reached their lowest validation
+  loss in the last three of the 50 epochs (median epoch 48).
+- *Where the results are.* M3 predictions are in `results/predictions_m3/` and its analysis
+  in `results/amendment2/`, apart from version 1's files, which stay byte-identical
+  (`results/revision/baseline_manifest.json`). This separation was made before the M3
+  analysis was run.
+- *Exploratory.* Written after M3 was scored and not part of the amendment: the ratio of
+  mean spread on each held-out test to that on R, and the mean width of the C_r-calibrated
+  intervals, for each learner (`scripts/exploratory_m3.py`).
+

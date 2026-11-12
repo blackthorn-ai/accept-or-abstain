@@ -1,5 +1,5 @@
 {
-  "revision_date": "2026-11-08",
+  "revision_date": "2026-11-12",
   "status": "unposted working revision",
   "base_commit": "00e118892799a511d7d304869c556c9d2f875226",
   "scope": "Fresh saved-prediction metric replay; no base-model retraining or independent validation",
@@ -27,15 +27,29 @@
   },
   "uncertainty_change": "Pooled Wilson intervals withdrawn; no replacement population interval",
   "original_h1_query_bootstrap": "Preserved; incomplete partial-overlap, chemical-group and training uncertainty",
+  "amendment_2_0_M3": {
+    "prediction_files": 35,
+    "gate_metric_rows_replayed": 1800,
+    "per_seed_rows_checked_against_replayed_acceptance_masks": 160,
+    "pooled_descriptive_rows": 32,
+    "hypotheses": {
+      "DMPNN": {
+        "H1": false,
+        "H2": false,
+        "H3": false,
+        "H4": false
+      }
+    }
+  },
   "pdfs": {
     "paper/main.pdf": {
-      "pages": 17,
-      "sha256": "5b453a2849836d64a35b8f7fcb63a1d2b7d0b437d5cac3a511d6c6450521e47a",
+      "pages": 18,
+      "sha256": "727a7be02c46c79fe8aec7d45dbf16639813468f55c65e4015e5c16048a291ac",
       "build_log_checked": true
     },
     "paper/si.pdf": {
-      "pages": 10,
-      "sha256": "971e36ae8a63ad1324c6feb4e6bced0ac6937ce3731232b703bf9981a39ec595",
+      "pages": 15,
+      "sha256": "018b8848b74ecf109de48094c0a3dee2465e56f2b13dad7a6b32dacfb9e1bf0b",
       "build_log_checked": true
     }
   },
@@ -52,6 +66,8 @@
   "commands": [
     "python -m unittest discover -s tests -v",
     "python scripts/analyse.py",
+    "python scripts/graph_jobs.py export|train|merge (M3, separate .venv-graph)",
+    "python scripts/analyse.py --pred results/predictions_m3 --out results/amendment2",
     "python scripts/make_figures.py --ga",
     "python scripts/make_tables.py",
     "python scripts/exploratory.py",

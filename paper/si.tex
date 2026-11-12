@@ -22,10 +22,10 @@
 {\large Accept or abstain? A pre-specified test of reliability gates calibrated on held-out chemistry for molecular property and reaction-yield models}\\[0.6em]
 Oleksandr Gurbych\\
 {\small Blackthorn AI Ltd., London, United Kingdom}\\
-{\small Working revision: 8 November 2026 (not posted)}
+{\small Working revision: 12 November 2026 (not posted)}
 \end{center}
 
-\noindent Contents: Section S1, results of the MLP ensemble (M2), Tables S1--S3. Section S2, operating-limits card of the random forest (M1) at $t = 0.9$ (descriptive pooled precision with correct/accepted counts), Table S4. Section S3, the analysis plan. Section S4, software environment. Section S5, per-seed results for both calibration pipelines and both targets (Tables S5--S8). Table numbers in the main text refer to the main manuscript.
+\noindent Contents: Section S1, results of the MLP ensemble (M2), Tables S1--S3. Section S2, operating-limits card of the random forest (M1) at $t = 0.9$ (descriptive pooled precision with correct/accepted counts), Table S4. Section S3, the analysis plan. Section S4, software environment. Section S5, per-seed results for both calibration pipelines and both targets (Tables S5--S8 for M1 and M2; Tables S9--S10 for M3). Section S6, results of the graph-network ensemble M3, added by protocol amendment 2.0 (Tables S11--S14). Table numbers in the main text refer to the main manuscript.
 
 \section{Results of the MLP ensemble (M2)}
 
@@ -74,7 +74,7 @@ The cards are descriptive summaries of accepted prediction--seed observations. A
 
 \section{Software environment}
 
-Python 3.12.14; RDKit 2026.09.1; scikit-learn 1.9.1; NumPy 2.5.4; SciPy 1.18.1; pandas 3.1.0; matplotlib 3.11.2. The locked dependencies are installed with \texttt{uv sync --frozen --python 3.12}. The full pipeline (\texttt{fetch\_data.py}, \texttt{run\_predictions.py}, \texttt{analyse.py}, \texttt{make\_figures.py}, \texttt{make\_tables.py}) runs in about 40 minutes on an 18-core laptop CPU. Input digests (SHA-256) are listed in \texttt{PROVENANCE.md} and checked by \texttt{fetch\_data.py}.
+Python 3.12.14; RDKit 2026.09.1; scikit-learn 1.9.1; NumPy 2.5.4; SciPy 1.18.1; pandas 3.1.0; matplotlib 3.11.2. The locked dependencies are installed with \texttt{uv sync --frozen --python 3.12}. The full pipeline (\texttt{fetch\_data.py}, \texttt{run\_predictions.py}, \texttt{analyse.py}, \texttt{make\_figures.py}, \texttt{make\_tables.py}) runs in about 40 minutes on an 18-core laptop CPU. Input digests (SHA-256) are listed in \texttt{PROVENANCE.md} and checked by \texttt{fetch\_data.py}. M3 (amendment 2.0) runs in a separate environment, because Chemprop requires an older RDKit: Chemprop 2.3.1, PyTorch 2.15.0, Lightning 2.6.6, RDKit 2026.03.6 (\texttt{env/graph-requirements.txt}). Its 35 fits (seven tasks, five seeds, five members each) ran on the CPU, six jobs at a time with three threads each (\texttt{scripts/graph\_jobs.py}); the main environment computes the splits, the similarity signals, the gates and the metrics as for M1 and M2.
 
 \clearpage
 \section{Per-seed descriptive operating results}
@@ -88,6 +88,42 @@ These tables extend the descriptive reporting in this revision; they do not chan
 \input{tables/t6_per_seed_MLP_8.tex}
 \clearpage
 \input{tables/t6_per_seed_MLP_9.tex}
+\clearpage
+\input{tables/t6_per_seed_DMPNN_8.tex}
+\clearpage
+\input{tables/t6_per_seed_DMPNN_9.tex}
 \endgroup
+
+\clearpage
+\section{Results of the graph-network ensemble (M3)}
+M3, an ensemble of five Chemprop D-MPNNs, was added by protocol amendment 2.0, which was committed before any M3 prediction was computed (Section~S3). Its splits, similarity signals, gates and metrics are those of M1 and M2.
+
+\begin{table}[htbp]
+\centering
+\caption{Ungated accuracy of M3 (mean $\pm$ s.d. over five seeds). Definitions as in Table~S1.}
+\small
+\input{tables/t2_accuracy_DMPNN.tex}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{AURC of the selective error rate for M3 (lower is better; mean over seeds). ``No gate'' is the ungated error rate.}
+\small
+\input{tables/t5_aurc_DMPNN.tex}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Operating-limits card for Gate~B with M3 at $t = 0.8$. Descriptive pooled precision with correct/accepted counts and accepting seeds for both pipelines; other definitions as in Table~4 of the main text. No independent-binomial interval is reported.}
+\small
+\resizebox{\linewidth}{!}{\input{tables/t3_card_DMPNN_8.tex}}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Operating-limits card for Gate~B with M3 at $t = 0.9$. Definitions as in Table~S13.}
+\small
+\resizebox{\linewidth}{!}{\input{tables/t3_card_DMPNN_9.tex}}
+\end{table}
 
 \end{document}
