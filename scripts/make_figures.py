@@ -254,15 +254,17 @@ def fig_fluorinated():
 # ------------------------------------------------------------------ F7 signals by learner (amendment 2.0)
 def fig_signals_by_learner():
     """AURC of each score on every held-out test, for each learner (fusion fitted on C_h)."""
+    a2 = RES / "amendment2" / "summary_scores.csv"
+    SS = pd.concat([S, pd.read_csv(a2)], ignore_index=True) if a2.exists() else S
     learners = [("RF", "M1, random forest"), ("MLP", "M2, MLP ensemble"), ("DMPNN", "M3, D-MPNN ensemble")]
-    learners = [m for m in learners if (S.model == m[0]).any()]
+    learners = [m for m in learners if (SS.model == m[0]).any()]
     fig, axes = plt.subplots(1, len(learners), figsize=(7.1, 2.9), sharey=True, sharex=True)
     y = np.arange(len(HELD_OUT))[::-1]
     for ax, (mk, title) in zip(np.atleast_1d(axes), learners):
         for sc, mark, off in [("s1", "o", 0.2), ("neg_u", "s", 0.0), ("fused", "D", -0.2)]:
             vals = []
             for _, task, test in HELD_OUT:
-                r = S[(S.task == task) & (S.model == mk) & (S.cal == "C_h") & (S.test == test) & (S.score == sc)]
+                r = SS[(SS.task == task) & (SS.model == mk) & (SS.cal == "C_h") & (SS.test == test) & (SS.score == sc)]
                 vals.append(r.aurc.iloc[0] if len(r) else np.nan)
             ax.scatter(vals, y + off, s=14, marker=mark, color=C[sc], label=NAME[sc], zorder=3, lw=0)
         ax.axhline(4.5, color="0.6", lw=0.6)
@@ -278,7 +280,7 @@ def fig_signals_by_learner():
 
 if __name__ == "__main__":
     fig_protocol(); fig_gap(); fig_risk_coverage(); fig_calibration()
-    if (S.model == "DMPNN").any():  # protocol amendment 2.0
+    if (RES / "amendment2" / "summary_scores.csv").exists():  # protocol amendment 2.0
         fig_signals_by_learner()
     conf = fig_conformal(); fl = fig_fluorinated()
     pd.DataFrame(conf, columns=["test", "cov_all", "cov_accepted"]).to_csv(RES / "fig5_values.csv", index=False)

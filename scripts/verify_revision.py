@@ -52,20 +52,24 @@ def compare_table(actual, expected, keys, name):
         raise ValueError(f"{name}: values or row keys differ from recomputed results") from error
 
 
-def replay_predictions(root):
-    """Recompute gate masks and metrics from saved predictions, without loading pickle."""
+def replay_predictions(root, pred="results/predictions", res="results"):
+    """Recompute gate masks and metrics from saved predictions, without loading pickle.
+
+    Version 1 uses the defaults; M3 of amendment 2.0 is replayed from results/predictions_m3
+    against results/amendment2.
+    """
     analyse.FULL.clear()
     rows, scores = [], []
-    files = sorted((root / "results/predictions").glob("*.csv.gz"))
+    files = sorted((root / pred).glob("*.csv.gz"))
     require(bool(files), "No saved prediction files")
     for path in files:
         r, s = analyse.analyse_file(path, {})
         rows.extend(r)
         scores.extend(s)
     keys = ["task", "model", "seed", "cal", "test"]
-    compare_table(pd.read_csv(root / "results/metrics_long.csv"), pd.DataFrame(rows),
+    compare_table(pd.read_csv(root / res / "metrics_long.csv"), pd.DataFrame(rows),
                   keys + ["gate", "target"], "Gate metrics")
-    compare_table(pd.read_csv(root / "results/scores_long.csv"), pd.DataFrame(scores),
+    compare_table(pd.read_csv(root / res / "scores_long.csv"), pd.DataFrame(scores),
                   keys + ["score"], "Score metrics")
     return pd.DataFrame(rows), analyse.FULL, len(files)
 
@@ -141,10 +145,23 @@ def main():
     per_seed = pd.read_csv(rev / "gate_per_seed.csv")
     pooled = pd.read_csv(rev / "gate_pooled_descriptive.csv")
     validate_gate_reports(per_seed, pooled, long, arrays)
+    amendment = None
+    a2 = ROOT / "results/amendment2"
+    if (a2 / "metrics_long.csv").is_file():  # M3, protocol amendment 2.0
+        long2, arrays2, files2 = replay_predictions(ROOT, "results/predictions_m3", "results/amendment2")
+        per2 = pd.read_csv(a2 / "gate_per_seed.csv")
+        pool2 = pd.read_csv(a2 / "gate_pooled_descriptive.csv")
+        validate_gate_reports(per2, pool2, long2, arrays2)
+        amendment = {
+            "prediction_files": files2, "gate_metric_rows_replayed": len(long2),
+            "per_seed_rows_checked_against_replayed_acceptance_masks": len(per2),
+            "pooled_descriptive_rows": len(pool2),
+            "hypotheses": json.loads((a2 / "hypotheses.json").read_text()),
+        }
     verify_source_package(ROOT)
     pdfs = verify_pdfs(ROOT, args.require_build_logs)
     result = {
-        "revision_date": "2026-11-08", "status": "unposted working revision",
+        "revision_date": "2026-11-12" if amendment else "2026-11-08", "status": "unposted working revision",
         "base_commit": baseline["base_commit"],
         "scope": "Fresh saved-prediction metric replay; no base-model retraining or independent validation",
         "baseline_files_checked": len(baseline["files"]), "baseline_mismatches": changed,
@@ -155,6 +172,7 @@ def main():
         "hypotheses": json.loads((ROOT / "results/hypotheses.json").read_text()),
         "uncertainty_change": "Pooled Wilson intervals withdrawn; no replacement population interval",
         "original_h1_query_bootstrap": "Preserved; incomplete partial-overlap, chemical-group and training uncertainty",
+        "amendment_2_0_M3": amendment,
         "pdfs": pdfs, "root_pdf_and_source_zip_synchronized": True,
         "source_zip_membership_checked": True,
         "versions": {"python": platform.python_version(), "numpy": np.__version__,
@@ -162,7 +180,10 @@ def main():
                      "scikit-learn": sklearn.__version__, "matplotlib": matplotlib.__version__},
         "commands": [
             "python -m unittest discover -s tests -v",
-            "python scripts/analyse.py", "python scripts/make_figures.py --ga",
+            "python scripts/analyse.py",
+            "python scripts/graph_jobs.py export|train|merge (M3, separate .venv-graph)",
+            "python scripts/analyse.py --pred results/predictions_m3 --out results/amendment2",
+            "python scripts/make_figures.py --ga",
             "python scripts/make_tables.py", "python scripts/exploratory.py",
             "python scripts/build_paper.py", "python scripts/verify_revision.py --require-build-logs",
         ],

@@ -18,6 +18,15 @@ G = pd.read_csv(RES / "summary_gates.csv")
 L = pd.read_csv(RES / "metrics_long.csv")
 S = pd.read_csv(RES / "summary_scores.csv")
 PER_SEED, POOLED = gate_reports(L, HELD_OUT)
+# M3, protocol amendment 2.0: analysed apart, so that version 1's files stay unchanged
+A2 = RES / "amendment2"
+if (A2 / "summary_gates.csv").exists():
+    L2 = pd.read_csv(A2 / "metrics_long.csv")
+    PER_SEED2, POOLED2 = gate_reports(L2, HELD_OUT)
+    G = pd.concat([G, pd.read_csv(A2 / "summary_gates.csv")], ignore_index=True)
+    S = pd.concat([S, pd.read_csv(A2 / "summary_scores.csv")], ignore_index=True)
+else:
+    PER_SEED2 = POOLED2 = None
 
 
 def meta(task):
@@ -82,8 +91,9 @@ def t3(model="RF", target=0.8):
     for fam, task, test in HELD_OUT:
         cells = []
         for cal in ("C_r", "C_h"):
-            d = POOLED[(POOLED.task == task) & (POOLED.model == model) & (POOLED.cal == cal) &
-                       (POOLED.test == test) & (POOLED.target == target)].iloc[0]
+            pooled = POOLED2 if model == "DMPNN" else POOLED
+            d = pooled[(pooled.task == task) & (pooled.model == model) & (pooled.cal == cal) &
+                       (pooled.test == test) & (pooled.target == target)].iloc[0]
             precision = "abstained (0/0)" if d.n_acc == 0 else f"{d.pooled_precision:.2f} ({int(d.n_correct)}/{int(d.n_acc)})"
             cells += [pct(d.coverage), precision, f"{int(d.seeds_accepting)}/{int(d.seeds)}"]
         out.append(f"{LABEL[(task, test)]} & " + " & ".join(cells) + r" \\")
@@ -100,8 +110,8 @@ def per_seed_table(model, target):
            r"\toprule", *head, r"\endfirsthead", r"\toprule", *head, r"\endhead",
            r"\bottomrule", r"\endfoot"]
     for fam, task, test in HELD_OUT:
-        d = PER_SEED[(PER_SEED.task == task) & (PER_SEED.test == test) &
-                     (PER_SEED.model == model) & (PER_SEED.target == target)]
+        ps = PER_SEED2 if model == "DMPNN" else PER_SEED
+        d = ps[(ps.task == task) & (ps.test == test) & (ps.model == model) & (ps.target == target)]
         for seed in sorted(d.seed.unique()):
             cells = []
             for cal in ("C_r", "C_h"):
@@ -119,9 +129,14 @@ def revision_reports():
     dest.mkdir(exist_ok=True)
     PER_SEED.to_csv(dest / "gate_per_seed.csv", index=False)
     POOLED.to_csv(dest / "gate_pooled_descriptive.csv", index=False)
-    for model in [m for m in ("RF", "MLP", "DMPNN") if (PER_SEED.model == m).any()]:
+    for model in ("RF", "MLP"):
         for target in (0.8, 0.9):
             per_seed_table(model, target)
+    if PER_SEED2 is not None:  # amendment 2.0: M3 reports kept with M3's results
+        PER_SEED2.to_csv(A2 / "gate_per_seed.csv", index=False)
+        POOLED2.to_csv(A2 / "gate_pooled_descriptive.csv", index=False)
+        for target in (0.8, 0.9):
+            per_seed_table("DMPNN", target)
 
 
 def h2_vacuous(model):
@@ -141,6 +156,8 @@ def h2_vacuous(model):
 def t4():
     """Hypothesis verdicts for every model (M3 added by protocol amendment 2.0)."""
     v = json.loads((RES / "hypotheses.json").read_text())
+    if (A2 / "hypotheses.json").exists():
+        v.update(json.loads((A2 / "hypotheses.json").read_text()))
     cols = [c for c in (("RF", "M1 (RF)"), ("MLP", "M2 (MLP)"), ("DMPNN", "M3 (D-MPNN)")) if c[0] in v]
     out = ["\\begin{tabular}{@{}l" + "l" * len(cols) + "@{}}", "\\toprule",
            "Hypothesis & " + " & ".join(c[1] for c in cols) + " \\\\", "\\midrule"]

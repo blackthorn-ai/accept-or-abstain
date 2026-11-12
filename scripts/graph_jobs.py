@@ -8,11 +8,13 @@ M1 and M2. Three steps, run from the repository root:
   python scripts/graph_jobs.py export            # one job file per task and seed
   python scripts/graph_jobs.py train [--workers 6 --threads 3]
                                                  # runs scripts/graph_train.py in .venv-graph
-  python scripts/graph_jobs.py merge             # results/predictions/<task>__DMPNN__s<seed>.csv.gz
+  python scripts/graph_jobs.py merge             # results/predictions_m3/<task>__DMPNN__s<seed>.csv.gz
 
 Export writes every row of F and of each evaluation set with its SMILES and label (reactions:
 the component SMILES joined by '.'). Merge adds s1 and s5 the way run_predictions.py does and
-checks that they equal the values in the M1 file of the same task and seed.
+checks that they equal the values in the M1 file of the same task and seed. M3 predictions are
+kept apart from version 1's (results/predictions_m3/), so the version 1 files and the results
+built from them stay byte-identical.
 """
 from __future__ import annotations
 
@@ -31,6 +33,7 @@ from aoa import features
 from run_predictions import PRED, ROOT, TASKS
 
 JOBS = ROOT / "results" / "graph_jobs"
+PRED_M3 = ROOT / "results" / "predictions_m3"
 GRAPH_PY = ROOT / ".venv-graph" / "bin" / "python"
 MODEL = "DMPNN"
 # largest jobs first, so that the parallel run ends evenly
@@ -78,7 +81,7 @@ def train(tasks: list[str], workers: int, threads: int) -> None:
 def merge(tasks: list[str]) -> None:
     for task in tasks:
         for seed, spec in TASKS[task]():
-            out_f = PRED / f"{task}__{MODEL}__s{seed}.csv.gz"
+            out_f = PRED_M3 / f"{task}__{MODEL}__s{seed}.csv.gz"
             if out_f.exists():
                 continue
             g = JOBS / f"{task}__s{seed}__{MODEL}.csv.gz"
@@ -108,12 +111,13 @@ def merge(tasks: list[str]) -> None:
             ref = pd.read_csv(PRED / f"{task}__RF__s{seed}.csv.gz")
             assert (ref.set.values == P.set.values).all() and (ref.idx.values == P.idx.values).all(), "row order differs from M1"
             assert np.allclose(ref.s1.values, P.s1.values) and np.allclose(ref.s5.values, P.s5.values), "s1/s5 differ from M1"
+            PRED_M3.mkdir(parents=True, exist_ok=True)
             P.to_csv(out_f, index=False, compression="gzip")
             meta = {k: v for k, v in spec["meta"].items() if k != "ligand"}
             gm = json.loads(g.with_suffix("").with_suffix(".json").read_text())
             meta.update({"n_fit": int(len(F)), **{f"n_{k}": int(len(v)) for k, v in spec["sets"].items()},
                          "seconds": gm["seconds"], "graph": gm})
-            (PRED / f"{task}__{MODEL}__s{seed}.json").write_text(json.dumps(meta, indent=1, default=str))
+            (PRED_M3 / f"{task}__{MODEL}__s{seed}.json").write_text(json.dumps(meta, indent=1, default=str))
             print(f"{task:10s} {MODEL} seed {seed}: merged {len(P)} rows", flush=True)
 
 

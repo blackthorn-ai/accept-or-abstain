@@ -37,6 +37,8 @@ def main():
     text = (ROOT / "PROTOCOL.md").read_text()
     body = text[text.index("## 1. Question"): text.index("## Changes after this version")]
     md = body.rstrip() + "\n" + NOTES
+    if "## Amendment 2.0" in text:  # the graph network M3, fixed before any M3 prediction
+        md += "\n" + text[text.index("## Amendment 2.0"):].rstrip() + "\n"
     out = subprocess.run(["pandoc", "-f", "gfm", "-t", "latex"], input=md, capture_output=True,
                          text=True, check=True).stdout
     out = out.replace("τ₁", "$\\tau_1$").replace("τ₂", "$\\tau_2$")
