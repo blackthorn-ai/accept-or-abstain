@@ -217,3 +217,60 @@ to fresh prediction replay, every report value, integer counts and complete ZIP
 membership. A tie-block error in the unused `empirical_threshold` helper is fixed;
 the reported LTT-labelled and conjunctive pipelines do not call that helper. No
 original numerical output or hypothesis decision changes. See `PR_REVIEW.md`.
+
+
+## Amendment 2.0, 12 November 2026: a graph network as a third learner (M3)
+
+**Fixed before any M3 prediction was computed.** Sections 1–10 and notes 1.1–1.4 are
+not changed, and the verdicts of version 1, which M1 decides, stand.
+
+**Why.** Under version 1 the outcome of H3 differed by learner. With M1, the fused score
+ranked errors no better than ensemble spread on any held-out test (relative AURC
+reduction between −0.9% and +1.7%). With M2, similarity s1 ranked logP errors better than
+spread on all three logP tests, and the fused score lowered the AURC there by 2.8–7.4%,
+short of the 10% criterion; on the reaction tests spread was the better signal and
+fusion added nothing. Two fingerprint learners cannot show whether H3 depends on the
+model family. A directed message-passing neural network (D-MPNN) learns its own molecular
+representation and is the family most uncertainty benchmarks for molecular property
+prediction use. This difference was seen after version 1 was scored, so the amendment
+is motivated post hoc; every M3 setting and criterion below is fixed before M3 exists.
+
+**M3, a graph network.**
+- *Software.* Chemprop 2.3.1 (PyTorch 2.15.0, Lightning 2.6.6, RDKit 2026.03.6), in a separate environment because it requires an
+  older RDKit (versions in `env/graph-requirements.txt`). Data, splits, s1 and s5, gates,
+  intervals and metrics are computed in the main environment exactly as for M1 and M2
+  (`scripts/graph_jobs.py`; the M3 fit is `scripts/graph_train.py`).
+- *Input.* D1: the SMILES of the compound. D3a and D3b: the SMILES of the variable
+  components of section 4, joined by "." into one multi-fragment graph; an empty
+  component (no ligand or no reagent in D3b) is left out.
+- *Architecture and training.* Chemprop's defaults, not tuned on any fold: bond-based
+  message passing (hidden size 300, depth 3, no dropout), norm aggregation, a feed-forward
+  head with one hidden layer of 300, standardised targets, mean-squared-error loss, batch
+  size 64 and 50 epochs, with the learning rate rising from 1e-4 to 1e-3 over two warm-up
+  epochs and decaying to 1e-4. A random 10% of F selects the checkpoint with the lowest
+  validation loss; the other 90% trains. Training uses the CPU only, three threads per job.
+- *Ensemble.* Five members. Member m of seed s uses the random seed 100·s + m for its
+  initialisation, data order and validation subset. ŷ is the member mean; u is the
+  standard deviation across members (population, as for M2).
+- *Everything else* is as in sections 3–8: M3 is trained on F only, with the same five
+  seeds and splits, and its predictions pass through the same gates and metrics.
+
+**Hypotheses for M3.** H1–H4 of section 9 are applied to M3 with unchanged criteria and
+read with notes 1.1, 1.3 and 1.4. The question that motivated this amendment is H3; no
+direction is predicted. M3's verdicts are reported beside M1's and M2's.
+
+**Descriptive, not tested.** For each held-out test: which single signal, s1 or −u, has
+the lower AURC under M3, and the fused score's relative AURC change, beside M1 and M2;
+and the ungated accuracy of M3 beside M1 and M2. Reporting follows notes 1.3 and 1.4
+(per-seed counts; pooled precision is descriptive, with no interval).
+
+**Failures.** A member whose predictions are not finite is retrained once with the seed
+100·s + m + 50. If that also fails, the ensemble keeps its other members and the tables
+say so. Every task and seed is reported.
+
+**Order.** This amendment and the code that produces M3 predictions are committed before
+any M3 prediction is computed. Before this amendment was written, a timing check trained
+D-MPNN members for two epochs on 1,000 fit-set rows from three job files (D1, D3a Test1
+and D3b, seed 0), and a smoke test trained a five-member ensemble on 300 fit-set rows of
+the D3a Test1 job (seed 0) and predicted 50 further fit-set rows, twice, with identical
+results. Neither computed a prediction on any calibration, test or external set.
