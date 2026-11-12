@@ -44,13 +44,13 @@
   "pdfs": {
     "paper/main.pdf": {
       "pages": 18,
-      "sha256": "727a7be02c46c79fe8aec7d45dbf16639813468f55c65e4015e5c16048a291ac",
+      "sha256": "6a64c3fef3fb74799f5345ad1fb459986035451486876b0250a8405cd73b1cab",
       "build_log_checked": true
     },
     "paper/si.pdf": {
       "pages": 15,
       "sha256": "018b8848b74ecf109de48094c0a3dee2465e56f2b13dad7a6b32dacfb9e1bf0b",
-      "build_log_checked": true
+      "build_log_checked": false
     }
   },
   "root_pdf_and_source_zip_synchronized": true,
@@ -73,5 +73,10 @@
     "python scripts/exploratory.py",
     "python scripts/build_paper.py",
     "python scripts/verify_revision.py --require-build-logs"
-  ]
+  ],
+  "document_update": {
+    "date": "2026-11-12",
+    "change": "Acknowledgements section removed at the author's request; current manuscript PDF and source package rebuilt.",
+    "scope": "Document-only checks; prior saved-prediction verification retained."
+  }
 }
