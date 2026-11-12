@@ -61,6 +61,11 @@ labels refer to the empirical rule, not a proved guarantee.
 uv sync --frozen --python 3.12
 .venv/bin/python scripts/fetch_data.py        # public data, SHA-256 checked
 .venv/bin/python scripts/run_predictions.py   # base models, per-query predictions
+# M3, the graph network of protocol amendment 2.0 (separate environment: Chemprop needs an older RDKit)
+uv venv .venv-graph --python 3.12 && uv pip install --python .venv-graph/bin/python -r env/graph-requirements.txt
+PYTHONPATH=scripts:src .venv/bin/python scripts/graph_jobs.py export
+PYTHONPATH=scripts:src .venv/bin/python scripts/graph_jobs.py train --workers 6 --threads 3
+PYTHONPATH=scripts:src .venv/bin/python scripts/graph_jobs.py merge
 .venv/bin/python scripts/analyse.py           # gates, metrics, hypotheses
 .venv/bin/python scripts/make_figures.py --ga
 .venv/bin/python scripts/make_tables.py

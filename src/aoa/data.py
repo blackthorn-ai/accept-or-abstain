@@ -143,6 +143,15 @@ def load_sm() -> pd.DataFrame:
     return out
 
 
+def joined_smiles(df: pd.DataFrame, components: list[str]) -> np.ndarray:
+    """One multi-fragment SMILES per reaction: the non-empty component SMILES joined by '.'.
+
+    Input of the graph network M3 (protocol amendment 2.0); M1 and M2 do not use it.
+    """
+    rows = df[components].fillna("").astype(str).itertuples(index=False)
+    return np.array([".".join(s for s in row if s) for row in rows], dtype=object)
+
+
 def sha256(path: Path) -> str:
     import hashlib
 
@@ -155,6 +164,7 @@ __all__ = [
     "load_logp_pool",
     "load_bh",
     "load_sm",
+    "joined_smiles",
     "BH_COMPONENTS",
     "SM_COMPONENTS",
     "BH_TEST_TRAIN_ROWS",

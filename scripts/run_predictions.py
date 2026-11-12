@@ -58,6 +58,7 @@ def logp_task(no_cf: bool):
         F, Cr, R = splits.random_part(I, rng)
         sets = {"C_r": Cr, "C_h": Ch, "R": R, "H": H}
         yield seed, dict(X=Xp, B=Bp, y=pool.y.values, F=F, sets=sets, ext=ext,
+                         smiles=pool.smiles.values,
                          meta={"n_clusters": int(len(np.unique(labels[keep])))})
 
 
@@ -75,6 +76,7 @@ def bh_task(sheet: str):
         F, Cr, R = splits.random_part(I, rng)
         sets = {"C_r": Cr, "C_h": Ch, "R": R, "H": H}
         yield seed, dict(X=X, B=B, y=df.y.values, F=F, sets=sets, ext={},
+                         smiles=data.joined_smiles(df, data.BH_COMPONENTS),
                          meta={"cal_additives": cal_add,
                                "test_additives": sorted(set(add[H]))})
 
@@ -89,6 +91,7 @@ def sm_task():
         F, Cr, R = splits.random_part(I, rng)
         sets = {"C_r": Cr, "C_h": Ch, "R": R, "H": H}
         yield seed, dict(X=X, B=B, y=df.y.values, F=F, sets=sets, ext={},
+                         smiles=data.joined_smiles(df, data.SM_COMPONENTS),
                          meta={"test_ligands": [str(x) for x in h_g],
                                "cal_ligands": [str(x) for x in c_g],
                                "ligand": lig})

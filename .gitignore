@@ -19,3 +19,5 @@ paper/*.aux
 paper/*.log
 paper/*.out
 paper/*.toc
+.venv-graph/
+results/graph_jobs/

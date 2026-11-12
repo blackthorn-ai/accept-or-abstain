@@ -5,6 +5,8 @@ proprietary or confidential data, code, model, result, report or presentation wa
 used. The commit history starts from an empty repository (commit `4d98d6b`), and the
 analysis protocol (`PROTOCOL.md`) was committed before any test-set result was
 computed (commit `f187a12`; clarifications in `0269f67`, also before scoring).
+Amendment 2.0 (a graph network, M3) and its code were committed before any M3 prediction
+was computed; M3 results were produced with three CPU threads per job.
 
 ## Data
 
@@ -34,5 +36,6 @@ published open-source libraries:
 | NumPy, SciPy, pandas | numerics, binomial tail, tables | BSD-3-Clause |
 | matplotlib | figures | PSF-based (matplotlib licence) |
 | openpyxl | reading .xlsx | MIT |
+| Chemprop 2.3.1, PyTorch 2.15.0, Lightning 2.6.6 | M3 graph network (amendment 2.0), in the separate `.venv-graph` environment with RDKit 2026.03.6; exact versions in `env/graph-requirements.txt` | MIT; BSD-3-Clause; Apache-2.0 |
 
 No code from the `SoftServeInc` repositories is used; only their data files.

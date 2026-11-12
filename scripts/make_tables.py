@@ -119,22 +119,41 @@ def revision_reports():
     dest.mkdir(exist_ok=True)
     PER_SEED.to_csv(dest / "gate_per_seed.csv", index=False)
     POOLED.to_csv(dest / "gate_pooled_descriptive.csv", index=False)
-    for model in ("RF", "MLP"):
+    for model in [m for m in ("RF", "MLP", "DMPNN") if (PER_SEED.model == m).any()]:
         for target in (0.8, 0.9):
             per_seed_table(model, target)
 
 
+def h2_vacuous(model):
+    """H2 holds only because the C_h gate abstained (undefined precision counts as meeting t)."""
+    meet = cells = 0
+    for fam, task, test in HELD_OUT:
+        for t in (0.8, 0.9):
+            r = G[(G.task == task) & (G.model == model) & (G.cal == "C_h") & (G.test == test) &
+                  (G.gate == "LTT_fused") & (G.target == t)]
+            if r.empty:
+                continue
+            cells += 1
+            meet += (not np.isnan(r.precision.iloc[0])) and r.precision.iloc[0] >= t - 0.05
+    return meet < 0.75 * cells
+
+
 def t4():
-    """Hypothesis verdicts for both models."""
+    """Hypothesis verdicts for every model (M3 added by protocol amendment 2.0)."""
     v = json.loads((RES / "hypotheses.json").read_text())
-    out = ["\\begin{tabular}{@{}lll@{}}", "\\toprule", "Hypothesis & M1 (RF) & M2 (MLP) \\\\", "\\midrule"]
+    cols = [c for c in (("RF", "M1 (RF)"), ("MLP", "M2 (MLP)"), ("DMPNN", "M3 (D-MPNN)")) if c[0] in v]
+    out = ["\\begin{tabular}{@{}l" + "l" * len(cols) + "@{}}", "\\toprule",
+           "Hypothesis & " + " & ".join(c[1] for c in cols) + " \\\\", "\\midrule"]
     names = {"H1": "H1: gate lowers error at 30\\% coverage", "H2": "H2: calibration split matters",
              "H3": "H3: fusion beats best single signal", "H4": "H4: gating restores conformal coverage"}
     for h in ["H1", "H2", "H3", "H4"]:
-        mlp = "holds" if v.get("MLP", {}).get(h) else "does not hold"
-        if h == "H2" and mlp == "holds":
-            mlp = "holds (vacuously)"
-        out.append(f"{names[h]} & {'holds' if v['RF'][h] else 'does not hold'} & {mlp} \\\\")
+        cells = []
+        for key, _ in cols:
+            word = "holds" if v[key].get(h) else "does not hold"
+            if h == "H2" and word == "holds" and h2_vacuous(key):
+                word = "holds (vacuously)"
+            cells.append(word)
+        out.append(f"{names[h]} & " + " & ".join(cells) + " \\\\")
     out += ["\\bottomrule", "\\end{tabular}"]
     (TAB / "t4_verdicts.tex").write_text("\n".join(out))
 
@@ -155,4 +174,6 @@ def t5(model):
 
 if __name__ == "__main__":
     revision_reports(); t1(); t2("RF"); t2("MLP"); t3("RF", 0.8); t3("RF", 0.9); t3("MLP", 0.8); t4(); t5("RF"); t5("MLP")
+    if (G.model == "DMPNN").any():  # protocol amendment 2.0
+        t2("DMPNN"); t3("DMPNN", 0.8); t3("DMPNN", 0.9); t5("DMPNN")
     print("tables written to", TAB)
